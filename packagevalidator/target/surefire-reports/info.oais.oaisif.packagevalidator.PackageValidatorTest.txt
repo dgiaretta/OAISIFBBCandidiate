@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: info.oais.oaisif.packagevalidator.PackageValidatorTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.303 s - in info.oais.oaisif.packagevalidator.PackageValidatorTest

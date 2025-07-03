@@ -1,0 +1,99 @@
+{
+    "InformationPackage": {
+        "InformationObject": {
+            "DataObject": {
+                "IdentifierString": "scientific-paper-2024-001",
+                "IdentifierType": "DOI",
+                "size": "2048"
+            },
+            "RepresentationInformation": {
+                "RepInfoCategory": "Semantic/ResearchDocument",
+                "InformationObject": {
+                    "DataObject": {
+                        "EncodedContent": "UGFwZXIgY29udGVudHMgaW4gQmFzZTY0",
+                        "Encoding": "BASE64"
+                    },
+                    "RepresentationInformation": {
+                        "RepInfoCategory": "Structure/Metadata",
+                        "RecursionHalt": "MISSING"
+                    }
+                }
+            }
+        },
+        "IsDeclaredComplete": true,
+        "PackageDescription": "Archived scientific research paper with associated metadata",
+        "PackageType": "XXXAIP",
+        "version": "1.0.0",
+        "PDI": {
+            "AccessRights": {
+                "DataObject": {
+                    "EncodedContent": "UHVibGljIEFjY2Vzcw==",
+                    "Encoding": "BASE64"
+                },
+                "RepresentationInformation": {
+                    "RepInfoCategory": "Other/AccessPolicy",
+                    "RecursionHalt": "MISSING"
+                }
+            },
+            "Context": {
+                "DataObject": {
+                    "IdentifierString": "research-context-001",
+                    "IdentifierType": "URI"
+                },
+                "RepresentationInformation": {
+                    "RepInfoCategory": "Combined/ContextDescription",
+                    "AndGroup": [
+                        {
+                            "RepInfoCategory": "Semantic/DisciplineContext",
+                            "RecursionHalt": "MISSING"
+                        },
+                        {
+                            "RepInfoCategory": "Structure/ContextMetadata",
+                            "RecursionHalt": "MISSING"
+                        }
+                    ]
+                }
+            },
+            "Fixity": {
+                "DataObject": {
+                    "EncodedContent": "c2hhMjU2aGFzaA==",
+                    "Encoding": "BASE64"
+                },
+                "RepresentationInformation": {
+                    "RepInfoCategory": "Structure/Integrity",
+                    "RecursionHalt": "MISSING"
+                }
+            },
+            "Provenance": {
+                "DataObject": {
+                    "IdentifierString": "archive-source-scientific-repository",
+                    "IdentifierType": "ARK"
+                },
+                "RepresentationInformation": {
+                    "RepInfoCategory": "Semantic/OriginHistory",
+                    "OrGroup": [
+                        {
+                            "RepInfoCategory": "Other/ArchiveSource",
+                            "RecursionHalt": "MISSING"
+                        },
+                        {
+                            "RepInfoCategory": "Semantic/SubmissionDetails",
+                            "RecursionHalt": "MISSING"
+                        }
+                    ]
+                }
+            },
+            "Reference": {
+                "DataObject": {
+                    "IdentifierString": "citation-reference-001",
+                    "IdentifierType": "HANDLE",
+                    "version": "1.1.0"
+                },
+                "RepresentationInformation": {
+                    "RepInfoCategory": "Semantic/Bibliography",
+                    "RecursionHalt": "MISSING"
+                }
+            }
+        }
+    }
+}

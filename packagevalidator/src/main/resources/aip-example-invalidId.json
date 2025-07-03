@@ -1,0 +1,142 @@
+{
+	"InformationPackage": {
+		"InformationObject": {
+			"DataObject": {
+				"IdentifierObject": {
+					"IdentifierString": "http://www.oais.info/oais-if/repository/PTAB-Example-Data/sample.table.fits",
+					"IdentifierType": "URI"
+				},
+				"size": "77760"
+			},
+			"RepresentationInformation": {
+				"AndGroup": {
+					"OtherRI": {
+						"DataObject": {
+							"IdentifierObject": {
+								"IdentifierString": "http://www.oais.info/oais-if/rrori/topcat-full.jar",
+							}
+						},
+						"RepresentationInformation": {
+							"DataObject": {
+								"IdentifierObject": {
+									"IdentifierString": "http://www.oais.info/oais-if/rrori/JAVA-jar-file.txt",
+									"IdentifierType": "URI"
+								}
+							},
+							"RepresentationInformation": {
+								"IdentifierObject": {
+									"IdentifierString": "https://www.charset.org/utf-8",
+									"IdentifierType": "URI"
+								}
+							}
+						}
+					},
+					"SemanticsRI": {
+						"DataObject": {
+							"IdentifierObject": {
+								"IdentifierString": "http://www.oais.info/oais-if/rrori/FITS%20Semantics.txt",
+								"IdentifierType": "URI"
+							}
+						},
+						"RepresentationInformation": {
+							"IdentifierObject": {
+								"IdentifierString": "https://www.charset.org/utf-8",
+								"IdentifierType": "URI"
+							}
+						}
+					},
+					"StructureRI": {
+						"DataObject": {
+							"IdentifierObject": {
+								"IdentifierString": "http://www.oais.info/oais-if/rrori/FITS%20Structure.txt",
+								"IdentifierType": "URI"
+							}
+						},
+						"RepresentationInformation": {
+							"IdentifierObject": {
+								"IdentifierString": "https://www.charset.org/utf-8",
+								"IdentifierType": "URI"
+							}
+						}
+					}
+				}
+			}
+		},
+		"IsDeclaredComplete": true,
+		"PackageDescription": "This is an example AIP for a FITS file",
+		"PackageType": "AIP",
+		"PDI": {
+			"AccessRights": {
+				"DataObject": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/ar",
+						"IdentifierType": "URI"
+					}
+				},
+				"RepresentationInformation": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/arri",
+						"IdentifierType": "URI"
+					}
+				}
+			},
+			"Context": {
+				"DataObject": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/context",
+						"IdentifierType": "URI"
+					}
+				},
+				"RepresentationInformation": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/contextri",
+						"IdentifierType": "URI"
+					}
+				}
+			},
+			"Fixity": {
+				"DataObject": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/fix",
+						"IdentifierType": "URI"
+					}
+				},
+				"RepresentationInformation": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/fixri",
+						"IdentifierType": "URL"
+					}
+				}
+			},
+			"Provenance": {
+				"DataObject": {
+					"IdentifierObject": {
+						"IdentifierString": "http://www.oais.info/oais-if/rrori/FITS%20Provenance.txt",
+						"IdentifierType": "URI"
+					}
+				},
+				"RepresentationInformation": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/provri",
+						"IdentifierType": "URI"
+					}
+				}
+			},
+			"Reference": {
+				"DataObject": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/ref",
+						"IdentifierType": "URI"
+					}
+				},
+				"RepresentationInformation": {
+					"IdentifierObject": {
+						"IdentifierString": "http://myprov.example.com/refri",
+						"IdentifierType": "URI"
+					}
+				}
+			}
+		},
+		"version": "1.0"
+	    }
+}
