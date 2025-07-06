@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -114,7 +115,7 @@ public class GenericAdapterController {
 		List<GenericAdapterEntry> ar = getAllProperties();
 		String arStr1 = null;
 
-		System.out.println("ar size :"+ ar.size() + ","+ar.toString());
+		//System.out.println("ar size :"+ ar.size() + ","+ar.toString());
 		arStr1 = "[";
 		System.out.println(ar);
 		GenericAdapterEntry ent = null;
@@ -127,7 +128,7 @@ public class GenericAdapterController {
 		}
 		arStr1 = arStr1 + "]";
 		String arStr = arStr1.replace("\"", "\\\"");
-		System.out.println("arstr:" + arStr);
+		//System.out.println("arstr:" + arStr);
 		
 		String ret = "{\"InformationPackage\":{\"version\":\"1.0.0\",\"PackageType\":\"General\",\"IsDeclaredComplete\":false,";
 		ret = ret + "\"PackageDescription\":\"This is the value of the selected property of this repository\",";
@@ -167,7 +168,7 @@ public class GenericAdapterController {
 	    RestTemplate restTemplate = new RestTemplate();   
 
 	    String cStr = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages/"+idStr+"/"+compStr, HttpMethod.GET, entity, String.class).getBody();
-	    System.out.println(compStr + " is:"+cStr);
+	    //System.out.println(compStr + " is:"+cStr);
 	    //return "{ \"InformationPackage\": {\"version\": \"1.0\", \"PackageType\": \"General\", \"PackageDescription\": \"This is the " + compStr + " of IP " + ipid + "\",  \"InformationObject\": {\"PDI\":" + pdi + "}}}";
 	    return cStr;
 	}
@@ -191,14 +192,14 @@ public class GenericAdapterController {
 		
 		JsonNode node=null;
 		ObjectMapper mapper = new ObjectMapper();
-	    System.out.println("XXXYYYSpecificAdapter is:" + specificAdapterUrl);
+	    //System.out.println("XXXYYYSpecificAdapter is:" + specificAdapterUrl);
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	    HttpEntity <String> entity = new HttpEntity<String>(headers);
 	    RestTemplate restTemplate = new RestTemplate();   
 
 	    String cStr = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages/"+idStr, HttpMethod.GET, entity, String.class).getBody();
-	    System.out.println("IP is "+cStr);
+	    //System.out.println("IP is "+cStr);
 	    try {
 			node = mapper.readTree(cStr);
 		} catch (JsonMappingException e) {
@@ -265,9 +266,9 @@ public class GenericAdapterController {
 	    // Remove quotes around the query if necessary
 	    
 	    String aips;
-	    System.out.println("******REQUEST IS:"+specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir+"&query"+ query);
+	    //System.out.println("******REQUEST IS:"+specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir+"&query"+ query);
 	    aips = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir+"&query="+ query, HttpMethod.GET, entity, String.class).getBody();
-        System.out.println("********aips is:"+aips);
+        //System.out.println("********aips is:"+aips);
 	    return aips;
 	}
 	
@@ -286,15 +287,37 @@ public class GenericAdapterController {
 	  @ApiResponse(responseCode = "404", description = "SwitchBoard not found", 
 	    content = @Content) })
 	@GetMapping(value="/sources", produces = "application/json")
-	public String getBySwitchboardAll() {
-		System.out.println("/switchboard/sources  being used ");
-	    System.out.println("Switchboard is:" + switchboardUrl);
+	public String getBySwitchboardAll(
+    		@Parameter(description = "page=n The initial page to start listing, (first page is 0). If n<0 then n is set to 0")  @RequestParam(defaultValue="0" )int page,
+    		@Parameter(description = "size=m The page size i.e. number of entries to list. If m<1 then m set to 20")  @RequestParam(defaultValue="20")int size,
+    		@Parameter(description = "sortBy= Sort entries by either ArchiveName, ArchiveURL, ArchiveDescription or id") @RequestParam(defaultValue="id") String sortBy,
+    		@Parameter(description = "sortDir= The sort direction asc (ascending) or desc (descending).")@RequestParam(defaultValue = "asc") String sortDir,
+    		@Parameter(description = "query= The query string to filter the results, conforming to the information in MYQUERYMETHOD property, with a default to return details of IPs where the Archive Description contains the string") @RequestParam(defaultValue = "") String query) {
+		
+	    // Validate the parameters
+	    
+		if (page < 0) {
+			page = 0;
+		}
+		if (size < 1) {
+			size = 20;
+		}
+		if (!sortBy.equals("ArchiveName") && !sortBy.equals("ArchiveURL")
+				&& !sortBy.equals("ArchiveDescription") && !sortBy.equals("id")) {
+			sortBy = "id";
+		}
+		if (!sortDir.equals("asc") && !sortDir.equals("desc")) {
+			sortDir = "asc";
+		}
+    	
+		//System.out.println("/switchboard/sources  being used ");
+	    //System.out.println("Switchboard is:" + switchboardUrl);
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	    HttpEntity <String> entity = new HttpEntity<String>(headers);
 	    RestTemplate restTemplate = new RestTemplate();   
 
-	    String aips = restTemplate.exchange(switchboardUrl+"/oaisif/v1/switchboard/sources", HttpMethod.GET, entity, String.class).getBody();
+	    String aips = restTemplate.exchange(switchboardUrl+"/oaisif/v1/switchboard/sources"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir+"&query="+ query, HttpMethod.GET, entity, String.class).getBody();
 	    return aips;
 	}
 	
@@ -310,8 +333,8 @@ public class GenericAdapterController {
 	@GetMapping(value="/sources/{name}", produces = "application/json")
 	public String getBySwitchboardName(
 			@PathVariable(value = "name") String name) {
-		System.out.println("/switchboard/sources/" + name + "  being used ");
-	    System.out.println("Switchboard is:" + switchboardUrl);
+		//System.out.println("/switchboard/sources/" + name + "  being used ");
+	    //System.out.println("Switchboard is:" + switchboardUrl);
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	    HttpEntity <String> entity = new HttpEntity<String>(headers);

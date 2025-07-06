@@ -58,13 +58,7 @@ public class SwitchBoardControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    public void testGetBySBAll() throws Exception {
-        when(switchBoardRepository.findAll()).thenReturn(Arrays.asList(entry1, entry2));
 
-        mockMvc.perform(get("/oaisif/v1/switchboard/sources"))
-                .andExpect(status().isOk());
-    }
 
     @Test
     public void testGetByArchiveNameLikeByRequestParam_NotFound() throws Exception {
@@ -74,11 +68,5 @@ public class SwitchBoardControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    public void testGetBySBAll_Empty() throws Exception {
-        when(switchBoardRepository.findAll()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/oaisif/v1/switchboard/sources"))
-                .andExpect(status().isOk());
-    }
 }

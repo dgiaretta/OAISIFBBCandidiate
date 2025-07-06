@@ -38,7 +38,7 @@ public class SpecificAdapterController {
     @ResponseBody
     @GetMapping(value = "/information-packages/{ipid}", produces = "application/json")
     public String getAIPByDOIDByRequestParam(@PathVariable(value = "ipid") String ipid) {
-        System.out.println("controller specificAdapterRepository is:" + specificAdapterRepository);
+        //System.out.println("controller specificAdapterRepository is:" + specificAdapterRepository);
         List<SpecificAdapterEntry> ar = specificAdapterRepository.findByIdStr(ipid);
         String ret = "";
         if (ar != null) {
@@ -81,7 +81,7 @@ public class SpecificAdapterController {
     	
     	Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.Direction.DESC : Sort.Direction.ASC;
-    	System.out.println("********Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir + " query: " + query);
+    	//System.out.println("********Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir + " query: " + query);
     	long totalEntries = 0L;
     	
     	Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -89,16 +89,17 @@ public class SpecificAdapterController {
         @SuppressWarnings("unchecked")
 		Page<SpecificAdapterEntry> ar = (Page<SpecificAdapterEntry>) specificAdapterRepository.findByPackageDescriptionContains(query, pageable);
         try {
-			totalEntries = ar.getTotalElements();
+        	if (ar != null ) totalEntries = ar.getTotalElements();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = null;
-        String csvStr = "[";
+        String init = "{\"packages\":[";
+        String csvStr = new String(init);
         String ret = "";
-        System.out.println("Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir+ " query: " + query);
+        //System.out.println("Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir+ " query: " + query);
         int count = 0;
         if (ar != null) {
             Iterator<SpecificAdapterEntry> iter = ar.iterator();
@@ -109,7 +110,7 @@ public class SpecificAdapterController {
                 String ident = "\"IdentifierObject\":{\"IdentifierType\":\"Local\",\"IdentifierString\":\"" + idStr + "\"}";
 
                 String aipStr = sae.getJsonString();
-                System.out.println(" JsonString is:" + aipStr);
+                //System.out.println(" JsonString is:" + aipStr);
                 try {
                      node = mapper.readTree(aipStr);
                 } catch (JsonMappingException e) {
@@ -118,41 +119,41 @@ public class SpecificAdapterController {
                     e.printStackTrace();
                 }
 
-                System.out.println(" Node is:" + node);
-                System.out.println("********Paging is : start: " + page + " size: " + size + " sortBy: " + sortBy + "   sortDir: " + sortDir);
+                //System.out.println(" Node is:" + node);
+                //System.out.println("********Paging is : start: " + page + " size: " + size + " sortBy: " + sortBy + "   sortDir: " + sortDir);
                 
 
                 JsonNode pd = node.at("/InformationPackage/PackageDescription");
-                System.out.println("PackageDescription as node: " + pd);
+                //System.out.println("PackageDescription as node: " + pd);
                 String pdStr = pd.asText();
 
                 //if (query != null && !pdStr.contains(query)) continue;
 
-                System.out.println("PD: " + pdStr);
+                //System.out.println("PD: " + pdStr);
 
                 JsonNode comp = node.at("/InformationPackage/IsDeclaredComplete");
-                System.out.println("IsDeclaredComplete as node: " + comp);
+                //System.out.println("IsDeclaredComplete as node: " + comp);
                 String compStr = comp.asText();
-                System.out.println("compStr: " + compStr);
+                //System.out.println("compStr: " + compStr);
 
                 JsonNode typ = node.at("/InformationPackage/PackageType");
-                System.out.println("PackageType as node: " + typ);
+                //System.out.println("PackageType as node: " + typ);
                 String typStr = typ.asText();
-                System.out.println("typStr: " + typStr);
+                //System.out.println("typStr: " + typStr);
 
                 JsonNode siz = node.at("/InformationPackage/InformationObject/DataObject/size");
-                System.out.println("Size as node: " + siz);
+                //System.out.println("Size as node: " + siz);
                 String sizStr = "";
                 if (siz.isMissingNode()) {
                     sizStr = "0";
                 } else {
                     sizStr = siz.asText();
                 }
-                System.out.println("typStr: " + typStr);
+                //System.out.println("typStr: " + typStr);
 
-                if (csvStr != "[") csvStr = csvStr + ",";
+                if (!csvStr.equals(init)) csvStr = csvStr + ",";
                 csvStr = csvStr + "{" + ident + ",\"PackageType\":" + typ + "," + "\"IsDeclaredComplete\":\"" + compStr + "\"" + ",\"PackageDescription\":\"" + pdStr + "\"" + ",\"size\":\"" + sizStr + "\"}";
-                System.out.println("CSVSTR:\r\n" + csvStr);
+                //System.out.println("CSVSTR:\r\n" + csvStr);
             }
             csvStr = csvStr + "],\"totalEntries\":" + totalEntries + "}";
             String escapedStr = csvStr.replace("\"", "\\\"");
@@ -163,7 +164,7 @@ public class SpecificAdapterController {
             ret = ret + "\"RepresentationInformation\":{\"RepInfoCategory\":\"Combined\",\"InformationObject\":{\"IdentifierObject\":{\"IdentifierType\":\"URI\",\"IdentifierString\":\"http://www.oais.info/oais-if/rrori/SpecificAdapterSemantics.txt\"}}}";
             ret = ret + "}}}";
 
-            System.out.println("InfoPackage is: " + ret);
+            //System.out.println("InfoPackage is: " + ret);
         }
 
         return ret; //.replace("\"", "\\\"");

@@ -73,9 +73,9 @@ public class SpecificAdapterService {
         System.out.println("aip9:"+ aip9);
         specificAdapterRepository.save(new SpecificAdapterEntry(aip9));
 
-        System.out.println("specificAdapterRepository is:" + specificAdapterRepository);
-        System.out.println("Retrieve all records");
-        System.out.println("Entries: " + specificAdapterRepository.findAll());
+        //System.out.println("specificAdapterRepository is:" + specificAdapterRepository);
+        //System.out.println("Retrieve all records");
+        //System.out.println("Entries: " + specificAdapterRepository.findAll());
 	}
 
 	

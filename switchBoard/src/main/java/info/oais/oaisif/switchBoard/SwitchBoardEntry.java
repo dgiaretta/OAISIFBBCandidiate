@@ -3,6 +3,7 @@ package info.oais.oaisif.switchBoard;
 
 import java.io.Serializable;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -17,9 +18,11 @@ public class SwitchBoardEntry implements Serializable {
     @Id
     private long id;
     private static final long serialVersionUID = 1L;
-
+    @Column(length=256)
     private String archiveName;
+    @Column(length=256)
     private String archiveDescription;
+    @Column(length=256)
     private String archiveURL;
 
     public SwitchBoardEntry() {

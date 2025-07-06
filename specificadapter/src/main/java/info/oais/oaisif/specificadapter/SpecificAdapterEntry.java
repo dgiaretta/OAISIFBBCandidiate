@@ -194,7 +194,7 @@ import lombok.*;
 		 * @return The String for the AIP entry
 		 */
 		public String getJsonString() {
-			System.out.println("getJsonString: " + jsonString);
+			//System.out.println("getJsonString: " + jsonString);
 			return this.jsonString;
 		}
 		
