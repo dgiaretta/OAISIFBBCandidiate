@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -228,24 +229,24 @@ public class GenericAdapterController {
 	  @ApiResponse(responseCode = "404", description = "Specific Adapter not found", 
 	    content = @Content) })
 	@GetMapping(value="/information-packages", produces = "application/json")
-	public String getAllIPs(@RequestParam(required = false) String query) {
+	public String getAllIPs(
+			@Parameter(description = "page=n The initial page to start listing, (first page is 0).")  @RequestParam(defaultValue="0" )int page,
+    		@Parameter(description = "size=m The page size i.e. number of entries to list.")  @RequestParam(defaultValue="20")int size,
+    		@Parameter(description = "sortBy= Sort entries by either IsDeclaredComplete, PackageType, PackageDescription or id") @RequestParam(defaultValue="id") String sortBy,
+    		@Parameter(description = "sortDir= The sort direction asc (ascending) or desc (descending).")@RequestParam(defaultValue = "asc") String sortDir){
 	    System.out.println("XXXXSpecificAdapter is:" + specificAdapterUrl);
-	    System.out.println("Query is " + query);
+	    
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	    HttpEntity <String> entity = new HttpEntity<String>(headers);
 	    RestTemplate restTemplate = new RestTemplate();  
 	    
 	    // Remove quotes around the query if necessary
-	    String queryStr = null;
-	    if (query != null) queryStr = query.replaceAll("^\"|\"$", "");
 	    
 	    String aips;
-	    if (queryStr != null) {
-	    	aips = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?query="+queryStr, HttpMethod.GET, entity, String.class).getBody();
-	    } else {
-	    	aips = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages", HttpMethod.GET, entity, String.class).getBody();
-	    }
+	    System.out.println("******REQUEST IS:"+specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir);
+	    aips = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir, HttpMethod.GET, entity, String.class).getBody();
+        System.out.println("********aips is:"+aips);
 	    return aips;
 	}
 	

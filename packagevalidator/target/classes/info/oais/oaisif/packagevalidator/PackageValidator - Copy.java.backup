@@ -1,0 +1,775 @@
+package info.oais.oaisif.packagevalidator;
+
+import org.json.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+/**
+ * Validator for OAIS Information Package JSON files.
+ * This class provides validation according to the OAIS-IF Information Package schema
+ * using the org.json library for JSON parsing rather than standard JSON Schema validation.
+ */
+public class PackageValidator {
+	
+	private List<ValidationError> errors = new ArrayList<>();
+
+	// Set to keep track of RepInfoID and InfoObjectID to verify references
+    private Set<String> knownInfoObjectIDs = new HashSet<>();
+    private Set<String> knownRepInfoIDs = new HashSet<>();
+    
+    private static final String[] VALID_PACKAGE_TYPES = {
+        "AIP", "General", "InfoObjectRequest", "Query", "QueryResponse", 
+        "ObjectRequestResponse", "ErrorResponse"
+    };
+    
+    private static final String[] VALID_IDENTIFIER_TYPES = {
+        "URI", "URL", "URN", "DOI", "ARK", "HANDLE", "PURL", "UUID", 
+        "JSONPath", "PhysicalLocation", "OTHER"
+    };
+    
+    private static final String[] VALID_REFERENCE_TYPES = {
+        "INTERNAL_INFOOBJECT", "INTERNAL_REPINFO", 
+        "REMOTE_INFOOBJECT", "REMOTE_REPINFO"
+    };
+    
+    private static final String[] VALID_ENCODING_TYPES = {
+        "ASCII7", "UTF8", "UTF16", "BASE64", "BASE32", "HEX", "OTHER"
+    };
+    
+    private static final Pattern VERSION_PATTERN = Pattern.compile("^\\d+\\.\\d+\\.\\d+$");
+    private static final Pattern REPINFO_CATEGORY_PATTERN = 
+        Pattern.compile("^(Structure|Semantic|Other|Combined)(/[A-Za-z]+)*$");
+
+    public static class ValidationException extends Exception {
+        public ValidationException(String message) {
+            super(message);
+        }
+    }
+    
+    static class ValidationError {
+        private final String path;
+        private final String message;
+
+        public ValidationError(String path, String message) {
+            this.path = path;
+            this.message = message;
+            //System.out.println("Adding : "+ path + " : " + message);
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+    }
+    
+    /**
+     * Validates an OAIS Information Package JSON file against the schema.
+     * 
+     * @param filePath The path to the JSON file to validate
+     * @return true if the file is valid, false otherwise
+     * @throws IOException If there is an error reading the file
+     * @throws JSONException If there is an error parsing the JSON
+     */
+
+    public boolean validateFile(String filePath) throws IOException, JSONException {
+		// Read the JSON file
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        }
+		// Parse the JSON
+        JSONObject json = new JSONObject(content.toString());
+		
+		// Reset the ID tracking sets
+        knownInfoObjectIDs.clear();
+        knownRepInfoIDs.clear();
+        validateRoot(json);
+        return errors.isEmpty();
+    }
+    
+//    public boolean validateContent(String jsonContent) throws JSONException, ValidationException {
+//        JSONObject json = new JSONObject(jsonContent);
+//        knownInfoObjectIDs.clear();
+//        knownRepInfoIDs.clear();
+//        validateRoot(json);
+//        return true;
+//    }
+
+    /**
+     * Validates the root OAIS Information Package.
+     * 
+     * @param json The root JSON object
+     */   
+    private void validateRoot(JSONObject json) {
+    	boolean hasInfoPackage = false;
+    	try {
+			hasInfoPackage = json.has("InformationPackage");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			
+		}
+        if (!hasInfoPackage) {
+            errors.add(new ValidationError("$.InformationPackage", "Root object must have an 'InformationPackage' property"));
+        } else {
+            validateInformationPackage(json.getJSONObject("InformationPackage"), "$.InformationPackage");
+        }
+    }
+
+	/**
+     * Validates an Information Package object.
+     * 
+     * @param ip The Information Package JSON object
+     * @param path The path to the Information Object
+     */
+
+    private void validateInformationPackage(JSONObject ip, String path) {
+        String[] requiredFields = {
+            "InformationObject", "IsDeclaredComplete", "PackageDescription",
+            "PackageType", "version"
+        };
+        
+        for (String field : requiredFields) {
+        	boolean hasField = false;
+        	try {
+        		hasField = ip.has(field); 
+	        } catch (Exception e) {
+	        	
+	        }
+        	if (!hasField) {
+                errors.add(new ValidationError(path + "." + field, "InformationPackage must have a '" + field + "' property"));
+            }
+        }
+        
+        // Validate version format
+        boolean hasVersion = false;
+        try {
+			hasVersion = ip.has("version");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+		if (!hasVersion) {
+			// throw new ValidationException("InformationPackage must have a 'version'
+			// property");
+			errors.add(
+					new ValidationError(path + "." + "version", "InformationPackage must have a 'version' property"));
+		} else {
+	        String version = ip.getString("version");
+	        if (!VERSION_PATTERN.matcher(version).matches()) {
+	            //throw new ValidationException("Invalid version format: " + version);
+	        	errors.add(new ValidationError(path + "." + "version", "Invalid version format: " + version ));
+	        }
+		}
+        // Validate PackageType
+		
+        String packageType = "";
+        boolean hasPackageType = false;
+        try {
+			hasPackageType = ip.has("PackageType");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (!hasPackageType) {
+            //throw new ValidationException("InformationPackage must have a 'PackageType' property");
+        	errors.add(new ValidationError(path + "." + "PackageType", "InformationPackage must have a 'PackageType' property"  ));
+		} else {
+			packageType = ip.getString("PackageType");
+		}
+		if (packageType.trim().isEmpty()) {
+			// throw new ValidationException("PackageType cannot be empty");
+			errors.add(new ValidationError(path + "." + "PackageType", "PackageType cannot be empty"));
+		} else {
+            validateEnum(packageType, VALID_PACKAGE_TYPES, "PackageType", path+".PackageType");
+		}
+        
+        // Validate IsDeclaredComplete
+        boolean isDeclaredComplete = false;
+        try {
+			isDeclaredComplete = ip.getBoolean("IsDeclaredComplete");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			errors.add(new ValidationError(path + "." + "IsDeclaredComplete", "Must have a 'IsDeclaredComplete' property"));
+		}
+        
+		// Validate PackageDescription
+        String packageDescription = ""; 
+        try {
+			packageDescription = ip.getString("PackageDescription");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			errors.add(new ValidationError(path + "." + "PackageDescription", "Must have a 'PackageDescription' property"));
+		}
+        if (packageDescription.trim().isEmpty()) {
+            //throw new ValidationException("PackageDescription cannot be empty");
+        	errors.add(new ValidationError(path + "." + "PackageDescription", "PackageDescription cannot be empty"  ));
+
+        }
+        
+		// Validate PDI for AIP with IsDeclaredComplete=true
+        boolean hasPDI = false;
+        if ("AIP".equals(packageType) && isDeclaredComplete) {
+        	try {
+				hasPDI = ip.has("PDI");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}
+            if (!hasPDI) {
+                //throw new ValidationException("An AIP with IsDeclaredComplete=true must have a PDI property");
+            	errors.add(new ValidationError(path + "." + "PackageType", "An AIP with IsDeclaredComplete=true must have a PDI property"  ));
+            }
+            validatePDI(ip.getJSONObject("PDI"), true, path+".PDI");
+        } else if (hasPDI) {
+            validatePDI(ip.getJSONObject("PDI"), false, path+".PDI");
+        }
+		
+        // Validate InformationObject
+        boolean hasInformationObject = false;
+        try {
+			hasInformationObject = ip.has("InformationObject");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (hasInformationObject) {
+            validateInformationObject(ip.getJSONObject("InformationObject"), path + ".InformationObject");
+        }
+    }
+    
+    private void validateEnum(String value, String[] validValues, String fieldName, String path) {
+        for (String validValue : validValues) {
+            if (validValue.equals(value)) {
+                return;
+            }
+        }
+        //throw new ValidationException("Invalid " + fieldName + ": " + value);
+        errors.add(new ValidationError(path + "." + fieldName, "Invalid"  ));
+    }
+
+    /**
+     * Validates a PDI (Preservation Description Information) object.
+     * 
+     * @param pdi The PDI JSON object
+     * @param isCompleteAIP Whether this PDI is part of a complete AIP
+     * @param path The path to the PDI
+     */
+    private void validatePDI(JSONObject pdi, boolean isCompleteAIP, String path)  {
+        String[] pdiElements = {
+            "AccessRights", "Context", "Fixity", "Provenance", "Reference"
+        };
+        
+        boolean hasElement = false;
+        if (isCompleteAIP) {
+			for (String element : pdiElements) {
+				hasElement = false;
+            	try {
+            		//System.out.println("Checking for AIP element: " + element);
+            		hasElement = pdi.has(element);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					//e.printStackTrace();
+				}
+                if (!hasElement) {
+                    //throw new ValidationException("PDI in a complete AIP must have a '" + element + "' property");
+                	errors.add(new ValidationError(path + "." + element, "PDI in a complete AIP must have a '" + element + "' property"  ));
+                } else {
+                	validateInformationObject(pdi.getJSONObject(element), path+".InformationObject");
+                }
+            }
+        } else {
+            for (String element : pdiElements) {
+            	hasElement = false;
+            	try {
+					hasElement = pdi.has(element);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					//e.printStackTrace();
+				}
+            	
+                if (hasElement) {
+                    validateInformationObject(pdi.getJSONObject(element), path+".InformationObject");
+                }
+            }
+        }
+    }
+    
+    /**
+     * Validates an Information Object.
+     * 
+     * @param io The Information Object JSON object
+     * @param path The path to the Information Object
+     * 
+     */
+    private void validateInformationObject(JSONObject io, String path)  {
+    	boolean hasInfoObjectID = false;
+    	try {
+			hasInfoObjectID = io.has("InfoObjectID");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (hasInfoObjectID) {
+            String infoObjectID = io.getString("InfoObjectID");
+            if (infoObjectID.trim().isEmpty()) {
+                //throw new ValidationException("InfoObjectID cannot be empty");
+            	errors.add(new ValidationError(path + "." + "InfoObjectID", "InfoObjectID cannot be empty"  ));
+            }
+            knownInfoObjectIDs.add(infoObjectID);
+        }
+        
+		// Validate one of two required combinations
+        boolean hasDataObjectAndRepInfo = false;
+        boolean hasReference = false;
+        try {
+			hasDataObjectAndRepInfo = io.has("DataObject") && io.has("RepresentationInformation");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        
+        try {
+			hasReference = io.has("Reference");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (!hasDataObjectAndRepInfo && !hasReference) {
+            //throw new ValidationException("InformationObject must have either (DataObject and RepresentationInformation) or Reference");
+        	errors.add(new ValidationError(path + "." + "DataObject", "InformationObject must have either (DataObject and RepresentationInformation) or Reference"  ));
+        }
+        
+        if (hasDataObjectAndRepInfo && hasReference) {
+            //throw new ValidationException("InformationObject cannot have both (DataObject and RepresentationInformation) and Reference");
+        	errors.add(new ValidationError(path + "." + "DataObject", "InformationObject cannot have both (DataObject and RepresentationInformation) and Reference"  ));
+        }
+        
+        if (hasDataObjectAndRepInfo) {
+            validateDataObject(io.getJSONObject("DataObject"), path+".DataObject");
+            validateRepresentationInformation(io.getJSONObject("RepresentationInformation"), path+".RepresentationInformation");
+        }
+        
+        if (hasReference) {
+            validateIdentifierObject(io.getJSONObject("Reference"), path+".Reference");
+        }
+    }
+    
+    /**
+     * Validates a Data Object.
+     * 
+     * @param dataObj The Data Object JSON object
+     * @param path The path to the Data Object
+     */
+    private void validateDataObject(JSONObject dataObj, String path)  {
+        boolean hasEncodedObject = false;
+        boolean hasIdentifierObject = false;
+        
+        try {
+			hasEncodedObject = dataObj.has("EncodedObject");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        try {
+			hasIdentifierObject = dataObj.has("IdentifierObject");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        
+        if (!hasEncodedObject && !hasIdentifierObject) {
+            //throw new ValidationException("DataObject must have either EncodedObject or IdentifierObject");
+        	errors.add(new ValidationError(path + "." + "DataObject", "DataObject must have either EncodedObject or IdentifierObject"  ));
+        }
+        
+        if (hasEncodedObject && hasIdentifierObject) {
+            //throw new ValidationException("DataObject cannot have both EncodedObject and IdentifierObject");
+        	errors.add(new ValidationError(path + "." + "DataObject", "DataObject cannot have both EncodedObject and IdentifierObject"  ));
+        }
+        
+        if (hasEncodedObject) {
+            validateEncodedObject(dataObj.getJSONObject("EncodedObject"), path+".EncodedObject");
+        }
+        
+        if (hasIdentifierObject) {
+            validateIdentifierObject(dataObj.getJSONObject("IdentifierObject"),path+".IdentifierObject");
+        }
+        
+		// Validate optional size field if present
+        boolean hasSize = false;
+        try {
+			hasSize = dataObj.has("size");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (hasSize) {
+            String size = dataObj.getString("size");
+            if (!size.matches("^[0-9]+$")) {
+                //throw new ValidationException("DataObject size must be a non-negative integer as a string");
+            	errors.add(new ValidationError(path + "." + "DataObject", "DataObject size must be a non-negative integer as a string"  ));
+            }
+        }
+    }
+    
+    /**
+     * Validates an Encoded Object.
+     * 
+     * @param encodedObj The Encoded Object JSON object
+     * @param path The path to the Encoded Object
+     */
+    private void validateEncodedObject(JSONObject encodedObj, String path)  {
+		// Check required fields
+    	boolean hasEncoding = false;
+    	String encoding = null;
+    	try {
+    		//System.out.println("Checking has Encoding");
+			hasEncoding = encodedObj.has("Encoding");
+			//System.out.println("After Checking has Encoding");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			//System.out.println("Error in has Encoding");
+		}
+        if (!hasEncoding) {
+            //throw new ValidationException("EncodedObject must have an 'Encoding' property");
+        	errors.add(new ValidationError(path + "." + "Encoding", "EncodedObject must have an 'Encoding' property"  ));
+        } else {
+        	// Validate Encoding
+            encoding = encodedObj.getString("Encoding");
+            validateEnum(encoding, VALID_ENCODING_TYPES, "Encoding", path+".Encoding");
+        }
+        boolean hasEncodedContent = false;
+        try {
+			hasEncodedContent = encodedObj.has("EncodedContent");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (!hasEncodedContent) {
+            //throw new ValidationException("EncodedObject must have an 'EncodedContent' property");
+        	errors.add(new ValidationError(path + "." + "EncodedContent", "EncodedObject must have an 'EncodedContent' property"  ));
+        }
+        
+		
+		// Validate CustomEncoding if Encoding is OTHER
+        boolean hasCustomEncoding = false;
+        if ("OTHER".equals(encoding)) {
+        	try {
+				hasCustomEncoding = encodedObj.has("CustomEncoding");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			}
+            if (!hasCustomEncoding) {
+                //throw new ValidationException("EncodedObject with Encoding='OTHER' must have a 'CustomEncoding' property");
+            	errors.add(new ValidationError(path + "." + "CustomEncoding", "EncodedObject with Encoding='OTHER' must have a 'CustomEncoding' property"  ));
+            }
+            String customEncoding = encodedObj.getString("CustomEncoding");
+            if (customEncoding.trim().isEmpty()) {
+                //throw new ValidationException("CustomEncoding cannot be empty");
+            	errors.add(new ValidationError(path + "." + "CustomEncoding", "CustomEncoding cannot be empty"  ));
+            }
+        }
+        
+		// Validate EncodedContent
+        String encodedContent = encodedObj.getString("EncodedContent");
+        if (encodedContent.trim().isEmpty()) {
+            //throw new ValidationException("EncodedContent cannot be empty");
+        	errors.add(new ValidationError(path + "." + "EncodedContent", "EncodedContent cannot be empty"  ));
+        }
+    }
+    
+    /**
+     * Validates an Identifier Object.
+     * 
+     * @param idObj The Identifier Object JSON object
+     * @param path The path to the Identifier Object
+     */
+    private void validateIdentifierObject(JSONObject idObj, String path)  {
+		
+		// Check required fields
+    	boolean hasIdentifierString = false;
+    	try {
+			hasIdentifierString = idObj.has("IdentifierString");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (!hasIdentifierString) {
+            //throw new ValidationException("IdentifierObject must have an 'IdentifierString' property");
+        	errors.add(new ValidationError(path + "." + "IdentifierString", "IdentifierObject must have an 'IdentifierString' property"  ));
+        }
+        boolean hasIdentifierType = false;
+        try {
+			hasIdentifierType = idObj.has("IdentifierType");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (!hasIdentifierType) {
+            //throw new ValidationException("IdentifierObject must have an 'IdentifierType' property");
+        	errors.add(new ValidationError(path + "." + "IdentifierType", "IdentifierObject must have an 'IdentifierType' property"  ));
+        }
+        
+		// Validate IdentifierString
+        
+        if (hasIdentifierString) {
+            
+	        String identifierString = idObj.getString("IdentifierString");
+	        if (identifierString.trim().isEmpty()) {
+	            //throw new ValidationException("IdentifierString cannot be empty");
+	        	errors.add(new ValidationError(path + "." + "IdentifierString", "IdentifierString cannot be empty"  ));
+	        }
+        }
+        
+		// Validate IdentifierType
+        boolean hasIdentifierType1 = false;
+        try {
+			hasIdentifierType1 = idObj.has("IdentifierType");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		} 
+        String identifierType = null;
+        if (hasIdentifierType1) {
+	        identifierType = idObj.getString("IdentifierType");
+	        validateEnum(identifierType, VALID_IDENTIFIER_TYPES, "IdentifierType", path+".IdentifierType");
+        
+			// Validate CustomIdentifierType if IdentifierType is OTHER
+	        boolean hasCustomIdentifierType = false;
+	        if ("OTHER".equals(identifierType)) {
+	        	try {
+					hasCustomIdentifierType = idObj.has("CustomIdentifierType");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					//e.printStackTrace();
+				}
+	            if (!hasCustomIdentifierType) {
+	                //throw new ValidationException("IdentifierObject with IdentifierType='OTHER' must have a 'CustomIdentifierType' property");
+	            	errors.add(new ValidationError(path + "." + "CustomIdentifierType", "IdentifierObject with IdentifierType='OTHER' must have a 'CustomIdentifierType' property"  ));
+	            }
+	            String customIdentifierType = idObj.getString("CustomIdentifierType");
+	            if (customIdentifierType.trim().isEmpty()) {
+	                //throw new ValidationException("CustomIdentifierType cannot be empty");
+	            	errors.add(new ValidationError(path + "." + "CustomIdentifierType", "CustomIdentifierType cannot be empty"  ));
+	            }
+	        }
+        }
+        
+		// Validate version if present
+        boolean hasVersion = false;
+        try {
+			hasVersion = idObj.has("version");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (hasVersion) {
+            String version = idObj.getString("version");
+            if (!VERSION_PATTERN.matcher(version).matches()) {
+                //throw new ValidationException("Invalid version format: " + version);
+            	errors.add(new ValidationError(path + "." + "version", "Invalid version format: " + version  ));
+            }
+        }
+        
+		// Validate Description if present
+        boolean hasDescription = false;
+        try {
+			hasDescription = idObj.has("Description");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (hasDescription) {
+            String description = idObj.getString("Description");
+            if (description.trim().isEmpty()) {
+                //throw new ValidationException("Description cannot be empty");
+            	errors.add(new ValidationError(path + "." + "Description", "Description cannot be empty"  ));
+            }
+        }
+        
+		// Validate ReferenceType if present
+        boolean hasReferenceType = false;
+        try {
+			hasReferenceType = idObj.has("ReferenceType");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        if (hasReferenceType) {
+            String referenceType = idObj.getString("ReferenceType");
+            //validateEnum(referenceType, VALID_REFERENCE_TYPES, "ReferenceType");
+            validateEnum(referenceType, VALID_REFERENCE_TYPES, "ReferenceType", path+".ReferenceType");
+        }
+    }
+    
+    /**
+     * Validates a Representation Information object.
+     * 
+     * @param repInfo The Representation Information JSON object
+     * @param path The path to the Representation Information
+     */
+    private void validateRepresentationInformation(JSONObject repInfo, String path)  {
+		
+		// Check for RepInfoID and register it if present
+        try {
+			if (repInfo.has("RepInfoID")) {
+			    String repInfoID = repInfo.getString("RepInfoID");
+			    if (repInfoID.trim().isEmpty()) {
+			        //throw new ValidationException("RepInfoID cannot be empty");
+			    	errors.add(new ValidationError(path + "." + "RepInfoID", "RepInfoID cannot be empty"  ));
+			    }
+			    knownRepInfoIDs.add(repInfoID);
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			
+		}
+        
+		// Validate RepInfoCategory
+
+		try {
+	        String repInfoCategory = repInfo.getString("RepInfoCategory");
+	        if (!REPINFO_CATEGORY_PATTERN.matcher(repInfoCategory).matches()) {
+	            //throw new ValidationException("Invalid RepInfoCategory format: " + repInfoCategory);
+	        	errors.add(new ValidationError(path + "." + "RepInfoCategory", "Invalid RepInfoCategory format: " + repInfoCategory  ));
+	        }
+		} catch (JSONException e) {
+			// throw new ValidationException("RepresentationInformation must have a
+			// 'RepInfoCategory' property");
+			errors.add(new ValidationError(path + "." + "RepInfoCategory",
+					"RepresentationInformation must have a 'RepInfoCategory' property"));
+		}
+
+
+
+        
+		// Validate that one of the required elements is present
+        boolean hasAndGroup = false;
+        try {
+			hasAndGroup = repInfo.has("AndGroup");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			
+		}
+        boolean hasOrGroup = false;
+        try {
+			hasOrGroup = repInfo.has("OrGroup");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        boolean hasInformationObject = false;
+        try {
+			hasInformationObject = repInfo.has("InformationObject");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        boolean hasRecursionHalt = false;
+        try {
+			hasRecursionHalt = repInfo.has("RecursionHalt");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
+        
+        if (!hasAndGroup && !hasOrGroup && !hasInformationObject && !hasRecursionHalt) {
+            //throw new ValidationException("RepresentationInformation must have one of 'AndGroup', 'OrGroup', 'InformationObject', or 'RecursionHalt'");
+        	errors.add(new ValidationError(path + "." + "RepresentationInformation", "RepresentationInformation must have one of 'AndGroup', 'OrGroup', 'InformationObject', or 'RecursionHalt'"  ));
+        }
+        
+		// Validate each specific element if present
+        if (hasAndGroup) {
+            validateAndGroup(repInfo.getJSONArray("AndGroup"), path+".AndGroup");
+        }
+        
+        if (hasOrGroup) {
+            validateOrGroup(repInfo.getJSONArray("OrGroup"), path+".OrGroup");
+        }
+        
+        if (hasInformationObject) {
+            validateInformationObject(repInfo.getJSONObject("InformationObject"), path+".InformationObject");
+        }
+        
+        if (hasRecursionHalt) {
+            String recursionHalt = repInfo.getString("RecursionHalt");
+            if (recursionHalt.trim().isEmpty()) {
+                //throw new ValidationException("RecursionHalt cannot be empty");
+            	errors.add(new ValidationError(path + "." + "RecursionHalt", "RecursionHalt cannot be empty"  ));
+            }
+        }
+    }
+    
+    /**
+     * Validates an AndGroup array.
+     * 
+     * @param andGroup The AndGroup JSON array
+     * @param path The path to the AndGroup
+     */
+    private void validateAndGroup(JSONArray andGroup, String path) {
+        if (andGroup.length() < 1) {
+            //throw new ValidationException("AndGroup must contain at least one element");
+        	errors.add(new ValidationError(path + "." + "AndGroup", "AndGroup must contain at least one element"  ));
+        }
+        
+        for (int i = 0; i < andGroup.length(); i++) {
+            validateRepresentationInformation(andGroup.getJSONObject(i), path+"["+i+"]");
+        }
+    }
+    
+    /**
+     * Validates an OrGroup array.
+     * 
+     * @param orGroup The OrGroup JSON array
+     * @param path The path to the OrGroup
+     */
+    private void validateOrGroup(JSONArray orGroup, String path)  {
+        if (orGroup.length() < 1) {
+            //throw new ValidationException("OrGroup must contain at least one element");
+        	errors.add(new ValidationError(path + "." + "OrGroup", "OrGroup must contain at least one element"  ));
+        }
+        
+        for (int i = 0; i < orGroup.length(); i++) {
+            validateRepresentationInformation(orGroup.getJSONObject(i), path+"["+i+"]");
+        }
+    }
+    
+    
+    public static void main(String[] args) {
+        if (args.length < 1) {
+            System.out.println("Usage: java PackageValidator <jsonFilePath>");
+            System.exit(1);
+        }
+        
+        PackageValidator validator = new PackageValidator();
+        try {
+            boolean isValid = validator.validateFile(args[0]);
+            System.out.println("Validation result: " + (isValid ? "VALID" : "INVALID"));
+			if (!isValid) {
+				for (ValidationError error : validator.errors) {
+					System.out.println("Error at " + error.getPath() + ": " + error.getMessage());
+				}
+			}
+        } catch (IOException e) {
+            System.out.println("File error: " + e.getMessage());
+        } catch (JSONException e) {
+            System.out.println("JSON parsing error: " + e.getMessage());
+        }
+    }
+}

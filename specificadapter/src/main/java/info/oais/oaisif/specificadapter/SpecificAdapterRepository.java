@@ -2,9 +2,11 @@ package info.oais.oaisif.specificadapter;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface SpecificAdapterRepository extends CrudRepository<SpecificAdapterEntry, Long> {
+public interface SpecificAdapterRepository extends PagingAndSortingRepository<SpecificAdapterEntry, Long>,JpaRepository<SpecificAdapterEntry, Long> {
 	//@Query("SELECT u FROM oaisif-switchboard u WHERE u.archiveName = name")
 	//List<SpecificAdapterEntry> findByAipDoid(String name);
 	List<SpecificAdapterEntry> findByIdStrLike(String name);

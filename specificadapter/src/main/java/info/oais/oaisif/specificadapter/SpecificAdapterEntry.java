@@ -3,10 +3,13 @@ package info.oais.oaisif.specificadapter;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 
 import jakarta.persistence.Id;
@@ -29,6 +32,7 @@ import lombok.*;
 
 		private String idStr;
 		
+		
 		private static final long serialVersionUID = 1L;
 		
 		/**
@@ -36,6 +40,16 @@ import lombok.*;
 		 */
 		@Column(length=40960)
 		private String jsonString=null;
+		
+		@Column(length=256)
+		private String packageType = null;
+		
+		@Column(length=256)
+		private String packageDescription = null;
+		
+		@Column(length=8)
+		private String isDeclaredComplete = null;
+		
 
 		/**
 		 * SpecificAdapterEntry constructor with  no args
@@ -52,7 +66,7 @@ import lombok.*;
 		 */
 		public SpecificAdapterEntry(String js) {
 			//super();
-			jsonString = js;
+			setJsonString( js);
 			id = (long) js.hashCode(); 
 			if (id < 0) id = -id;
 			idStr = id.toString();
@@ -66,7 +80,7 @@ import lombok.*;
 		 */
 		public SpecificAdapterEntry(Long id, String js) {
 			//super();
-			jsonString = js;
+			setJsonString(js);
 			this.id = id; 
 			idStr = id.toString();
 	    }
@@ -97,7 +111,82 @@ import lombok.*;
 		 * @param js The String for the AIP
 		 */
 		public void setJsonString(String js) {
+			ObjectMapper mapper = new ObjectMapper();
 			jsonString = js;
+			try {
+				JsonNode node = mapper.readTree(js);
+                JsonNode comp = node.at("/InformationPackage/IsDeclaredComplete");
+                System.out.println("IsDeclaredComplete as node: " + comp);
+                setIsDeclaredComplete(comp.asText());
+                
+                comp = node.at("/InformationPackage/PackageType");
+                setPackageType(comp.asText());
+                
+                comp = node.at("/InformationPackage/PackageDescription");
+                setPackageDescription(comp.asText());
+                
+            } catch (JsonMappingException e) {
+                e.printStackTrace();
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            //System.out.println(" Node is:" + node);
+            
+			
+		}
+
+		/**
+		 * Set the String for the PackageType
+		 * 
+		 * @param pt The PackageType for the IP
+		 */
+		public void setPackageType(String pt) {
+			this.packageType = pt;
+		}
+
+		/**
+		 * Get the String for the PackageType
+		 * 
+		 * @return The String for the PackageType
+		 */
+		public String getPackageType() {
+			return this.packageType;
+		}
+		/**
+		 * Set the String for the PackageDescription
+		 * 
+		 * @param pd The PackageDescription for the IP
+		 */
+		public void setPackageDescription(String pd) {
+			this.packageDescription = pd;
+		}
+
+		/**
+		 * Get the String for the PackageDescription
+		 * 
+		 * @return The String for the PackageDescription
+		 */
+		public String getPackageDescription() {
+			return this.packageDescription;
+		}
+		
+		
+		/**
+		 * Set the Boolean for the IsDeclaredComplete
+		 * 
+		 * @param idc The IsDeclaredComplete for the IP
+		 */
+		public void setIsDeclaredComplete(String idc) {
+			this.isDeclaredComplete = idc;
+		}
+
+		/**
+		 * Get the String for the IsDeclaredComplete
+		 * 
+		 * @return The Boolean for the IsDeclaredComplete
+		 */
+		public String getIsDeclaredComplete() {
+			return this.isDeclaredComplete;
 		}
 		/**
 		 * Get the jsonString for the entry
@@ -106,24 +195,24 @@ import lombok.*;
 		 */
 		public String getJsonString() {
 			System.out.println("getJsonString: " + jsonString);
-			return jsonString;
+			return this.jsonString;
 		}
 		
 		@Override
 		public String toString() {
-			return  "Id:" + id + "    AIP : " + jsonString ;
+			return  "Id:" + this.id + "    AIP : " + this.jsonString ;
 		}
 		/**
 		 * @return the m_idStr
 		 */
 		public String getIdStr() {
-			return idStr;
+			return this.idStr;
 		}
 		/**
 		 * @param idStr the mIdStr to set
 		 */
 		public void setIdStr(String idStr) {
 			this.idStr = idStr;
-			id = Long.valueOf(idStr);
+			this.id = Long.valueOf(idStr);
 		}	
 }
