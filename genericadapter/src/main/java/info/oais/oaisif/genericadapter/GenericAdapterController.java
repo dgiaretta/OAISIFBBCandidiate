@@ -230,12 +230,33 @@ public class GenericAdapterController {
 	    content = @Content) })
 	@GetMapping(value="/information-packages", produces = "application/json")
 	public String getAllIPs(
-			@Parameter(description = "page=n The initial page to start listing, (first page is 0).")  @RequestParam(defaultValue="0" )int page,
-    		@Parameter(description = "size=m The page size i.e. number of entries to list.")  @RequestParam(defaultValue="20")int size,
+			@Parameter(description = "page=n The initial page to start listing, (first page is 0). If n<0 then n is set to 0")  @RequestParam(defaultValue="0" )int page,
+    		@Parameter(description = "size=m The page size i.e. number of entries to list. If m<1 then m set to 10")  @RequestParam(defaultValue="20")int size,
     		@Parameter(description = "sortBy= Sort entries by either IsDeclaredComplete, PackageType, PackageDescription or id") @RequestParam(defaultValue="id") String sortBy,
-    		@Parameter(description = "sortDir= The sort direction asc (ascending) or desc (descending).")@RequestParam(defaultValue = "asc") String sortDir){
+    		@Parameter(description = "sortDir= The sort direction asc (ascending) or desc (descending).")@RequestParam(defaultValue = "asc") String sortDir,
+    		@Parameter(description = "query= The query string to filter the results by PackageDescription") @RequestParam(defaultValue = "") String query  ){
 	    System.out.println("XXXXSpecificAdapter is:" + specificAdapterUrl);
+	    // Validate the parameters
 	    
+		if (page < 0) {
+			page = 0;
+		}
+		if (size < 1) {
+			size = 20;
+		}
+		if (!sortBy.equals("IsDeclaredComplete") && !sortBy.equals("PackageType")
+				&& !sortBy.equals("PackageDescription") && !sortBy.equals("id")) {
+			sortBy = "id";
+		}
+		if (!sortDir.equals("asc") && !sortDir.equals("desc")) {
+			sortDir = "asc";
+		}
+
+		System.out.println("XXXXSpecificAdapter is:" + specificAdapterUrl);
+		System.out.println(
+				"XXXXSpecificAdapter is:" + specificAdapterUrl + "/oaisif/v1/specific-adapter/information-packages"
+						+ "?page=" + page + "&size=" + size + "&sortBy=" + sortBy + "&sortDir=" + sortDir+"&query"+ query);
+		// Create the headers and entity for the request
 		HttpHeaders headers = new HttpHeaders();
 	    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 	    HttpEntity <String> entity = new HttpEntity<String>(headers);
@@ -244,8 +265,8 @@ public class GenericAdapterController {
 	    // Remove quotes around the query if necessary
 	    
 	    String aips;
-	    System.out.println("******REQUEST IS:"+specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir);
-	    aips = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir, HttpMethod.GET, entity, String.class).getBody();
+	    System.out.println("******REQUEST IS:"+specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir+"&query"+ query);
+	    aips = restTemplate.exchange(specificAdapterUrl+"/oaisif/v1/specific-adapter/information-packages"+"?page="+page+"&size="+size+"&sortBy="+sortBy+"&sortDir="+sortDir+"&query="+ query, HttpMethod.GET, entity, String.class).getBody();
         System.out.println("********aips is:"+aips);
 	    return aips;
 	}

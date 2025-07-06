@@ -57,21 +57,37 @@ public class SpecificAdapterController {
     @ResponseBody
     @GetMapping(value = "/information-packages", produces = "application/json")
     public String getBySAAll(
-    		@Parameter(description = "page=n The initial page to start listing, (first page is 0).")  @RequestParam(defaultValue="0" )int page,
-    		@Parameter(description = "size=m The page size i.e. number of entries to list.")  @RequestParam(defaultValue="20")int size,
+    		@Parameter(description = "page=n The initial page to start listing, (first page is 0). If n<0 then n is set to 0")  @RequestParam(defaultValue="0" )int page,
+    		@Parameter(description = "size=m The page size i.e. number of entries to list. If m<1 then m set to 20")  @RequestParam(defaultValue="20")int size,
     		@Parameter(description = "sortBy= Sort entries by either IsDeclaredComplete, PackageType, PackageDescription or id") @RequestParam(defaultValue="id") String sortBy,
-    		@Parameter(description = "sortDir= The sort direction asc (ascending) or desc (descending).")@RequestParam(defaultValue = "asc") String sortDir) {
-    						//@RequestParam(required = false) String query) {
+    		@Parameter(description = "sortDir= The sort direction asc (ascending) or desc (descending).")@RequestParam(defaultValue = "asc") String sortDir,
+    		@Parameter(description = "query= The query string to filter the results by PackageDescription") @RequestParam(defaultValue = "") String query   ) {
+	    
+	    // Validate the parameters
+	    
+		if (page < 0) {
+			page = 0;
+		}
+		if (size < 1) {
+			size = 20;
+		}
+		if (!sortBy.equals("IsDeclaredComplete") && !sortBy.equals("PackageType")
+				&& !sortBy.equals("PackageDescription") && !sortBy.equals("id")) {
+			sortBy = "id";
+		}
+		if (!sortDir.equals("asc") && !sortDir.equals("desc")) {
+			sortDir = "asc";
+		}
     	
     	Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? 
                 Sort.Direction.DESC : Sort.Direction.ASC;
-    	System.out.println("********Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir);
+    	System.out.println("********Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir + " query: " + query);
     	long totalEntries = 0L;
     	
     	Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
     	
         @SuppressWarnings("unchecked")
-		Page<SpecificAdapterEntry> ar = (Page<SpecificAdapterEntry>) specificAdapterRepository.findAll(pageable);
+		Page<SpecificAdapterEntry> ar = (Page<SpecificAdapterEntry>) specificAdapterRepository.findByPackageDescriptionContains(query, pageable);
         try {
 			totalEntries = ar.getTotalElements();
 		} catch (Exception e) {
@@ -82,7 +98,7 @@ public class SpecificAdapterController {
         JsonNode node = null;
         String csvStr = "[";
         String ret = "";
-        System.out.println("Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir);
+        System.out.println("Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir+ " query: " + query);
         int count = 0;
         if (ar != null) {
             Iterator<SpecificAdapterEntry> iter = ar.iterator();
