@@ -136,7 +136,7 @@ public class SwitchBoardController {
                   .append(sUrl)
                   .append("\"}");
         }
-        csvStr.append("],\"totalEntries\":" + totalEntries + "}");
+        csvStr.append("],\"totalEntries\":" + totalEntries + ",\"page\":" + page + ",\"size\":" + size + ",\"sortBy\":\"" + sortBy + "\",\"sortDir\":\"" + sortDir + "\",\"query\":\"" + query+"\"}");
 
         String escapedStr = csvStr.toString().replace("\"", "\\\"");
         return "{\"InformationPackage\":{\"version\":\"1.0.0\",\"PackageType\":\"General\",\"IsDeclaredComplete\":false," +

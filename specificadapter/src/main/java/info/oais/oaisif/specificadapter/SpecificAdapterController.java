@@ -155,7 +155,7 @@ public class SpecificAdapterController {
                 csvStr = csvStr + "{" + ident + ",\"PackageType\":" + typ + "," + "\"IsDeclaredComplete\":\"" + compStr + "\"" + ",\"PackageDescription\":\"" + pdStr + "\"" + ",\"size\":\"" + sizStr + "\"}";
                 //System.out.println("CSVSTR:\r\n" + csvStr);
             }
-            csvStr = csvStr + "],\"totalEntries\":" + totalEntries + "}";
+            csvStr = csvStr + "],\"totalEntries\":" + totalEntries + ",\"page\":" + page + ",\"size\":" + size + ",\"sortBy\":\"" + sortBy + "\",\"sortDir\":\"" + sortDir + "\",\"query\":\"" + query+"\"}";
             String escapedStr = csvStr.replace("\"", "\\\"");
 
             ret = "{\"InformationPackage\":{\"version\":\"1.0.0\",\"PackageType\":\"General\",\"IsDeclaredComplete\":false,";
