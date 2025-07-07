@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="GB"/>
     <property name="sun.boot.library.path" value="C:\Users\david\.p2\pool\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604\jre\bin"/>
-    <property name="sun.java.command" value="C:\Users\david\AppData\Local\Temp\surefire10548298178383828796\surefirebooter12217097335198996267.jar C:\Users\david\AppData\Local\Temp\surefire10548298178383828796 2025-07-06T16-33-11_313-jvmRun1 surefire17229646283940467124tmp surefire_09628290143235236723tmp"/>
+    <property name="sun.java.command" value="C:\Users\david\AppData\Local\Temp\surefire2779844627107183100\surefirebooter943071016493892348.jar C:\Users\david\AppData\Local\Temp\surefire2779844627107183100 2025-07-07T11-35-33_384-jvmRun1 surefire13449689071144570154tmp surefire_02674153304272305874tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\david\OneDrive\OAISIFBBCandidate\packagevalidator\target\test-classes;C:\Users\david\OneDrive\OAISIFBBCandidate\packagevalidator\target\classes;C:\Users\david\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.13.4.1\jackson-databind-2.13.4.1.jar;C:\Users\david\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.13.4\jackson-annotations-2.13.4.jar;C:\Users\david\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.13.4\jackson-core-2.13.4.jar;C:\Users\david\.m2\repository\com\networknt\json-schema-validator\1.0.72\json-schema-validator-1.0.72.jar;C:\Users\david\.m2\repository\org\slf4j\slf4j-api\1.7.36\slf4j-api-1.7.36.jar;C:\Users\david\.m2\repository\org\apache\commons\commons-lang3\3.7\commons-lang3-3.7.jar;C:\Users\david\.m2\repository\com\ethlo\time\itu\1.7.0\itu-1.7.0.jar;C:\Users\david\.m2\repository\org\apache\logging\log4j\log4j-api\2.20.0\log4j-api-2.20.0.jar;C:\Users\david\.m2\repository\org\apache\logging\log4j\log4j-core\2.20.0\log4j-core-2.20.0.jar;C:\Users\david\.m2\repository\org\apache\logging\log4j\log4j-slf4j-impl\2.20.0\log4j-slf4j-impl-2.20.0.jar;C:\Users\david\.m2\repository\org\junit\jupiter\junit-jupiter\5.8.2\junit-jupiter-5.8.2.jar;C:\Users\david\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.8.2\junit-jupiter-api-5.8.2.jar;C:\Users\david\.m2\repository\org\opentest4j\opentest4j\1.2.0\opentest4j-1.2.0.jar;C:\Users\david\.m2\repository\org\junit\platform\junit-platform-commons\1.8.2\junit-platform-commons-1.8.2.jar;C:\Users\david\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\david\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.8.2\junit-jupiter-params-5.8.2.jar;C:\Users\david\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.8.2\junit-jupiter-engine-5.8.2.jar;C:\Users\david\.m2\repository\org\junit\platform\junit-platform-engine\1.8.2\junit-platform-engine-1.8.2.jar;C:\Users\david\.m2\repository\org\json\json\20250107\json-20250107.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -31,7 +31,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\david\AppData\Local\Temp\surefire10548298178383828796\surefirebooter12217097335198996267.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\david\AppData\Local\Temp\surefire2779844627107183100\surefirebooter943071016493892348.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="23.0.2+7"/>
@@ -52,7 +52,7 @@
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="sun.os.patch.level" value=""/>
     <property name="native.encoding" value="Cp1252"/>
-    <property name="java.library.path" value="C:\Users\david\.p2\pool\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604\jre\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Users/david/.p2/pool/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604/jre/bin/server;C:/Users/david/.p2/pool/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604/jre/bin;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft\jdk-17.0.5.8-hotspot\\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;c:\php;C:\Program Files\MySQL\MySQL Server 8.0\bin;c:\maven\bin;c:\gradle\bin;C:\Program Files (x86)\GTK2-Runtime\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\TortoiseSVN\bin;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\Git\cmd;C:\Users\david\AppData\Local\JSONBuddy;C:\Users\david\.cargo\bin;C:\Users\david\AppData\Local\Microsoft\WindowsApps;c:\php\ext;;C:\Users\david\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\david\AppData\Roaming\npm;C:\WINDOWS\System32;;."/>
+    <property name="java.library.path" value="C:\Users\david\.p2\pool\plugins\org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604\jre\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Users/david/.p2/pool/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604/jre/bin/server;C:/Users/david/.p2/pool/plugins/org.eclipse.justj.openjdk.hotspot.jre.full.win32.x86_64_23.0.2.v20250131-0604/jre/bin;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Microsoft\jdk-17.0.5.8-hotspot\\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\dotnet\;c:\php;C:\Program Files\MySQL\MySQL Server 8.0\bin;c:\maven\bin;c:\gradle\bin;C:\Program Files (x86)\GTK2-Runtime\bin;C:\HashiCorp\Vagrant\bin;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Program Files\TortoiseSVN\bin;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\Git\cmd;C:\Users\david\AppData\Local\JSONBuddy;C:\Users\david\.cargo\bin;C:\Users\david\AppData\Local\Microsoft\WindowsApps;c:\php\ext;;C:\Users\david\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\david\AppData\Roaming\npm;C:\WINDOWS\system32;;."/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="stderr.encoding" value="Cp1252"/>
     <property name="java.vendor" value="Eclipse Adoptium"/>
@@ -60,9 +60,9 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="67.0"/>
   </properties>
-  <testcase name="testValidateFile_MissingRequiredFields" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.306"/>
-  <testcase name="testValidateFile_EmptyInfoObjectID" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.005"/>
+  <testcase name="testValidateFile_MissingRequiredFields" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.307"/>
+  <testcase name="testValidateFile_EmptyInfoObjectID" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.004"/>
   <testcase name="testValidateFile_EmptyPackageType" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.003"/>
-  <testcase name="testValidateFile_EmptyFile" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.003"/>
+  <testcase name="testValidateFile_EmptyFile" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.004"/>
   <testcase name="testValidateFile_InvalidVersionFormat" classname="info.oais.oaisif.packagevalidator.PackageValidatorTest" time="0.003"/>
 </testsuite>

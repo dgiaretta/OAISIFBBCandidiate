@@ -309,6 +309,16 @@ public class PackageValidator {
      * @param path the JSON path to the InformationObject object
      */
     private void validateInformationObject(JsonNode io, String path) {
+    	if (io == null || !io.isObject()) {
+			errors.add(new ValidationError(path, "InformationObject must be a JSON object", io,
+					"Invalid InformationObject format"));
+			return;
+		}
+
+//		if (!io.has("InfoObjectID")) {
+//			errors.add(new ValidationError(path + ".InfoObjectID",
+//					"InformationObject must have an 'InfoObjectID' property", io, "Missing 'InfoObjectID' property"));
+//    	}
         if (io.has("InfoObjectID")) {
             String infoObjectID = io.get("InfoObjectID").asText();
             if (infoObjectID.trim().isEmpty()) {
@@ -349,6 +359,11 @@ public class PackageValidator {
      * @param path the JSON path to the DataObject object
      */
     private void validateDataObject(JsonNode dataObj, String path) {
+		if (dataObj == null || !dataObj.isObject()) {
+			errors.add(new ValidationError(path, "DataObject must be a JSON object", dataObj,
+					"Invalid DataObject format"));
+			return;
+		}
         boolean hasEncodedObject = dataObj.has("EncodedObject");
         boolean hasIdentifierObject = dataObj.has("IdentifierObject");
 
@@ -386,6 +401,11 @@ public class PackageValidator {
      * @param path the JSON path to the EncodedObject object
      */
     private void validateEncodedObject(JsonNode encodedObj, String path) {
+		if (encodedObj == null || !encodedObj.isObject()) {
+			errors.add(new ValidationError(path, "EncodedObject must be a JSON object", encodedObj,
+					"Invalid EncodedObject format"));
+			return;
+		}
         if (!encodedObj.has("Encoding")) {
             errors.add(new ValidationError(path + ".Encoding", "EncodedObject must have an 'Encoding' property", encodedObj, "Missing 'Encoding' property"));
         } else {
@@ -420,6 +440,12 @@ public class PackageValidator {
      * @param path the JSON path to the IdentifierObject object
      */
     private void validateIdentifierObject(JsonNode idObj, String path) {
+		if (idObj == null || !idObj.isObject()) {
+			errors.add(new ValidationError(path, "IdentifierObject must be a JSON object", idObj,
+					"Invalid IdentifierObject format"));
+			return;
+		}
+		
         if (!idObj.has("IdentifierString")) {
             errors.add(new ValidationError(path + ".IdentifierString", "IdentifierObject must have an 'IdentifierString' property", idObj, "Missing 'IdentifierString' property"));
         } else {
@@ -472,7 +498,13 @@ public class PackageValidator {
      */
     private void validateRepresentationInformation(JsonNode repInfo, String path) {
     	// System.out.println("Validating RepresentationInformation:" + repInfo.toString() + "\n at path: " + path);
-        if (repInfo.has("RepInfoID")) {
+		if (repInfo == null || !repInfo.isObject()) {
+			errors.add(new ValidationError(path, "RepresentationInformation must be a JSON object", repInfo,
+					"Invalid RepresentationInformation format"));
+			return;
+		}
+		
+    	if (repInfo.has("RepInfoID")) {
             String repInfoID = repInfo.get("RepInfoID").asText();
             if (repInfoID.trim().isEmpty()) {
                 errors.add(new ValidationError(path + ".RepInfoID", "RepInfoID cannot be empty", repInfo, "Empty 'RepInfoID'"));
