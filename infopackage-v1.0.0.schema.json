@@ -1,0 +1,383 @@
+{
+	"$id": "http://www.oais.info/oais-if/json-schema/infopackage-v1.0.0.schema.json",
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"description": "Description of the schema for the JSON serialization of an OAIS Archival Information Package",
+	"$defs": {
+		"OAIS-IF-InformationPackage": {
+			"title": "OAIS-IF-InformationPackage",
+			"type": "object",
+			"description": "The JSON structure for an OAIS-IF Information Package",
+			"additionalProperties": false,
+			"properties": {
+				"InformationPackage": {
+					"$ref": "#/$defs/InformationPackage"
+				}
+			},
+			"required": [
+				"InformationPackage"
+			]
+		},
+		"objVersion": {
+			"type": "string",
+			"description": "Version of the object",
+			"format": "regex",
+			"pattern": "^\\d+\\.\\d+\\.\\d+$"
+		},
+		"DataObject": {
+			"description": "The Data Object - should be either an Identifier or an EncodedObject",
+			"title": "DataObject",
+			"type": "object",
+			"oneOf": [
+				{
+					"required": ["EncodedObject"]
+				},
+				{
+					"required": ["IdentifierObject"]
+				}
+			],
+			"properties": {
+				"EncodedObject": {
+					"$ref": "#/$defs/EncodedObject"
+				},
+				"IdentifierObject":{
+					"$ref": "#/$defs/IdentifierObject"
+				},
+				"size": {
+					"description": "An estimate of the (arbitrarily large) size in bytes of the DataObject, or 0 (zero) if unknown",
+					"type": "string",
+					"pattern": "^[0-9]+$",
+					"minLength": 1
+				}
+			},
+			"additionalProperties": false
+		},
+		"IdentifierObject": {
+			"title": "IdentifierObject",
+			"type": "object",
+			"additionalProperties": false,
+			"description": "The Identifier Object with optional version for identification of specific version",
+			"properties": {
+				"IdentifierString": {
+					"description": "The Identifier",
+					"type": "string",
+					"minLength": 1
+				},
+				"IdentifierType": {
+					"description": "The type of the identifier",
+					"type": "string",
+					"enum": [
+						"URI",
+						"URL",
+						"URN",
+						"DOI",
+						"ARK",
+						"HANDLE",
+						"PURL",
+						"UUID",
+						"JSONPath",
+						"PhysicalLocation",
+						"OTHER"
+					]
+				},
+				"CustomIdentifierType": {
+					"description": "Custom identifier type (required if IdentifierType is OTHER)",
+					"type": "string",
+					"minLength": 1
+				},
+				"version": {
+					"$ref": "#/$defs/objVersion"
+				},
+				"Description": {
+					"description": "Optional description of what the identifier points to",
+					"type": "string",
+					"minLength": 1
+				},
+				"ReferenceType": {
+					"description": "Optional indicator of what type of reference this is",
+					"type": "string",
+					"enum": [
+						"INTERNAL_INFOOBJECT",
+						"INTERNAL_REPINFO",
+						"REMOTE_INFOOBJECT",
+						"REMOTE_REPINFO"
+					]
+				}
+			},
+			"required": [
+				"IdentifierString",
+				"IdentifierType"
+			],
+			"if": {
+				"properties": {
+					"IdentifierType": {
+						"const": "OTHER"
+					}
+				},
+				"required": [
+					"IdentifierType"
+				]
+			},
+			"then": {
+				"required": [
+					"CustomIdentifierType"
+				]
+			}
+		},
+		"EncodedObject": {
+			"title": "EncodedObject",
+			"description": "The binary encoded object with its encoding information",
+			"type": "object",
+			"properties": {
+				"Encoding": {
+					"description": "The encoding method used",
+					"type": "string",
+					"enum": [
+						"ASCII7",
+						"UTF8",
+						"UTF16",
+						"BASE64",
+						"BASE32",
+						"HEX",
+						"OTHER"
+					]
+				},
+				"CustomEncoding": {
+					"description": "Custom encoding method (required if Encoding is OTHER) e.g. JSON:URI to indicate that the EncodedContent is JSON with schema given by URI",
+					"type": "string",
+					"minLength": 1
+				},
+				"EncodedContent": {
+					"description": "The encoded content as a string",
+					"type": "string",
+					"minLength": 1
+				}
+			},
+			"required": [
+				"Encoding",
+				"EncodedContent"
+			],
+			"if": {
+				"properties": {
+					"Encoding": {
+						"const": "OTHER"
+					}
+				},
+				"required": [
+					"Encoding"
+				]
+			},
+			"then": {
+				"required": [
+					"CustomEncoding"
+				]
+			},
+			"additionalProperties": false
+		},
+		"AndGroup": {
+			"title": "AndGroup",
+			"description": "A group of objects which are all needed",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/RepresentationInformation"
+			},
+			"minItems": 1
+		},
+		"OrGroup": {
+			"title": "OrGroup",
+			"description": "A group of objects which are alternatives",
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/RepresentationInformation"
+			},
+			"minItems": 1
+		},
+		"PDIClass": {
+			"title": "PDIClass",
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"AccessRights": {
+					"$ref": "#/$defs/InformationObject",
+					"description": "Information about access and ownership rights"
+				},
+				"Context": {
+					"$ref": "#/$defs/InformationObject",
+					"description": "Information about how the Content Information relates to other information outside the Information Package"
+				},
+				"Fixity": {
+					"$ref": "#/$defs/InformationObject",
+					"description": "Information about the authentication mechanisms and authentication keys used"
+				},
+				"Provenance": {
+					"$ref": "#/$defs/InformationObject",
+					"description": "Information about the history of the Data Object"
+				},
+				"Reference": {
+					"$ref": "#/$defs/InformationObject",
+					"description": "Information used as identifiers for the Data Object"
+				}
+			},
+			"allOf": [
+				{
+					"if": {
+						"$comment": "This condition checks if this PDI is part of an AIP that is declared complete",
+						"$data": "/InformationPackage/PackageType",
+						"const": "AIP"
+					},
+					"then": {
+						"if": {
+							"$data": "/InformationPackage/IsDeclaredComplete",
+							"const": true
+						},
+						"then": {
+							"required": [
+								"AccessRights",
+								"Context",
+								"Fixity",
+								"Provenance",
+								"Reference"
+							]
+						}
+					}
+				}
+			]
+		},
+		"RecursionHalt": {
+			"type": "string",
+			"description": "A descriptive explanation for why the recursion is halted"
+		},
+		"RepresentationInformation": {
+		  "title": "RepresentationInformation",
+		  "description": "The Representation Information Object",
+		  "type": "object",
+		  "additionalProperties": false,
+		  "properties": {
+			"RepInfoID": {
+			  "description": "Optional identifier for this RepresentationInformation to allow it to be referenced",
+			  "type": "string",
+			  "minLength": 1
+			},
+			"RepInfoCategory": {
+			  "description": "A hint about the type of RepInfo e.g. Structure, Semantic, Other, or Combined (i.e. includes several of these) with additional refinements, to be used as hints to those users, separated by / for example Semantic/DataDictionary or Structure/BitLevel",
+			  "type": "string",
+			  "pattern": "^(Structure|Semantic|Other|Combined)(/[A-Za-z]+)*$"
+			},
+			"AndGroup": {
+			  "$ref": "#/$defs/AndGroup"
+			},
+			"OrGroup": {
+			  "$ref": "#/$defs/OrGroup"
+			},
+			"InformationObject": {
+			  "$ref": "#/$defs/InformationObject"
+			},
+			"RecursionHalt": {
+			  "$ref": "#/$defs/RecursionHalt"
+			}
+		  },
+		  "required": [
+			"RepInfoCategory"
+		  ],
+		  "anyOf": [
+			{ "required": ["AndGroup"] },
+			{ "required": ["OrGroup"] },
+			{ "required": ["InformationObject"] },
+			{ "required": ["RecursionHalt"] }
+		  ]
+		},
+		"InformationObject": {
+			"title": "InformationObject",
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"InfoObjectID": {
+					"description": "Optional identifier for this InformationObject to allow it to be referenced",
+					"type": "string",
+					"minLength": 1
+				},
+				"DataObject": {
+					"$ref": "#/$defs/DataObject"
+				},
+				"RepresentationInformation": {
+					"$ref": "#/$defs/RepresentationInformation"
+				},
+				"Reference": {
+					"$ref": "#/$defs/IdentifierObject",
+					"description": "A reference to another InformationObject or RepresentationInformation, either internal or external"
+				}
+			},
+			"oneOf": [
+				{
+					"required": [
+						"DataObject",
+						"RepresentationInformation"
+					]
+				},
+				{
+					"required": [
+						"Reference"
+					]
+				}
+			]
+		},
+		"InformationPackage": {
+			"title": "OAIS-IF Information Package schema",
+			"type": "object",
+			"properties": {
+				"InformationObject": {
+					"$ref": "#/$defs/InformationObject"
+				},
+				"IsDeclaredComplete": {
+					"description": "Indicates if the IP is a complete AIP",
+					"type": "boolean"
+				},
+				"PackageDescription": {
+					"description": "Description of the package contents",
+					"type": "string",
+					"minLength": 1
+				},
+				"PackageType": {
+					"description": "The type of the package",
+					"type": "string",
+					"enum": [
+						"AIP",
+						"General",
+						"InfoObjectRequest",
+						"Query",
+						"QueryResponse",
+						"ObjectRequestResponse",
+						"ErrorResponse"
+					]
+				},
+				"version": {
+					"$ref": "#/$defs/objVersion"
+				},
+				"PDI": {
+					"$ref": "#/$defs/PDIClass"
+				}
+			},
+			"required": [
+			"InformationObject",
+			"IsDeclaredComplete",
+			"PackageDescription",
+			"PackageType",
+			"version"
+		  ],
+		  "allOf": [
+			{
+				"if": {
+					"properties": {
+						"PackageType": { "const": "AIP" },
+						"IsDeclaredComplete": { "const": true }
+					},
+					"required": ["PackageType", "IsDeclaredComplete"]
+					},
+					"then": {
+						"required": ["PDI"]
+					}
+				}
+			],
+			"additionalProperties": false
+		}
+	}
+}
