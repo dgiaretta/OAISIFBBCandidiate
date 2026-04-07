@@ -65,7 +65,7 @@ public class SwitchBoardControllerTest {
         when(switchBoardRepository.findByArchiveNameLike("name999")).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/oaisif/v1/switchboard/sources/name999"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNotFound());
     }
 
 

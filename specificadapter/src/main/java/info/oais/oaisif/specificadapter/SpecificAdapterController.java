@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,31 +25,49 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
-@RequestMapping("/oaisif/v1/specific-adapter")
+@RequestMapping(value="/oaisif/v1/specific-adapter", produces = "application/json; charset=UTF-8")
 public class SpecificAdapterController {
 
     @Autowired
     private SpecificAdapterRepository specificAdapterRepository;
 
     /**
-     * Get an AIP given an identifier
-     * baseuri/GetAIP?aipid=xxx where XXX is archive's identifier for the AIP
+     * Get an IP given an identifier
+     * baseuri/information-packages/{ipid} where {ipid} is the archive's identifier for the AIP
      */
     @ResponseBody
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Found the Information Package with this id", 
+			    content = { @Content(mediaType = "application/json") }),
+		      @ApiResponse(responseCode = "400", description = "Invalid parameters supplied"),
+		      @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+		      @ApiResponse(responseCode = "403", description = "Forbidden request"),
+		      @ApiResponse(responseCode = "404", description = "Specified Information Package not found"),
+		      @ApiResponse(responseCode = "405", description = "Method Not Allowed")
+			  })
     @GetMapping(value = "/information-packages/{ipid}", produces = "application/json")
-    public String getAIPByDOIDByRequestParam(@PathVariable(value = "ipid") String ipid) {
+    public ResponseEntity<String> getAIPByDOIDByRequestParam(@PathVariable(value = "ipid") String ipid) {
         //System.out.println("controller specificAdapterRepository is:" + specificAdapterRepository);
         List<SpecificAdapterEntry> ar = specificAdapterRepository.findByIdStr(ipid);
-        String ret = "";
-        if (ar != null) {
-            System.out.println("Entry requested is: " + ar);
-            ret = (ar.get(0).getJsonString()); //.replace("\\\"", "\"");
-        } else {
-            System.out.println("Entry request for " + ipid + " is NULL");
+        
+        if (ar == null || ar.isEmpty()) {
+            return ResponseEntity.status(404).body("{\"error\":\"IP or IP component not found\"}"); //   ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"error\":\"Information Package not found\"}");
         }
-        return ret;
+        return ResponseEntity.ok(ar.get(0).getJsonString());      
+        
+//        String ret = "";
+//        if (ar != null) {
+//            System.out.println("Entry requested is: " + ar);
+//            ret = (ar.get(0).getJsonString()); //.replace("\\\"", "\"");
+//        } else {
+//            System.out.println("Entry request for " + ipid + " is NULL");
+//        }
+//        return ret;
     }
 
     /**
@@ -55,39 +75,68 @@ public class SpecificAdapterController {
      * baseuri/AIPAll
      */
     @ResponseBody
+	@ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Found the list of Information Packages", 
+			    content = { @Content(mediaType = "application/json") }),
+		      @ApiResponse(responseCode = "400", description = "Invalid parameters supplied"),
+		      @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+		      @ApiResponse(responseCode = "403", description = "Forbidden request"),
+		      @ApiResponse(responseCode = "404", description = "Specified Information Package not found"),
+		      @ApiResponse(responseCode = "405", description = "Method Not Allowed")
+			  })
     @GetMapping(value = "/information-packages", produces = "application/json")
-    public String getBySAAll(
+    public ResponseEntity<String> getBySAAll(
     		@Parameter(description = "page=n The initial page to start listing, (first page is 0). If n<0 then n is set to 0")  @RequestParam(defaultValue="0" )int page,
     		@Parameter(description = "size=m The page size i.e. number of entries to list. If m<1 then m set to 20")  @RequestParam(defaultValue="20")int size,
     		@Parameter(description = "sortBy= Sort entries by either IsDeclaredComplete, PackageType, PackageDescription or id") @RequestParam(defaultValue="id") String sortBy,
     		@Parameter(description = "sortDir= The sort direction asc (ascending) or desc (descending).")@RequestParam(defaultValue = "asc") String sortDir,
     		@Parameter(description = "query= The query string to filter the results, conforming to the information in MYQUERYMETHOD property, with a default to return details of IPs where the Package Description contains the string") @RequestParam(defaultValue = "") String query   ) {
 	    
-	    // Validate the parameters
-	    
-		if (page < 0) {
-			page = 0;
-		}
-		if (size < 1) {
-			size = 20;
-		}
-		if (!sortBy.equals("IsDeclaredComplete") && !sortBy.equals("PackageType")
-				&& !sortBy.equals("PackageDescription") && !sortBy.equals("id")) {
-			sortBy = "id";
-		}
-		if (!sortDir.equals("asc") && !sortDir.equals("desc")) {
-			sortDir = "asc";
-		}
-    	
-    	Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? 
-                Sort.Direction.DESC : Sort.Direction.ASC;
-    	//System.out.println("********Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir + " query: " + query);
     	long totalEntries = 0L;
+	    // Validate the parameters
     	
-    	Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+    	if (page < 0 || size < 1) {
+            return ResponseEntity.badRequest()
+                .body("{\"error\":\"Invalid page or size parameter\"}");
+        }
+        if (!sortBy.equals("IsDeclaredComplete") && !sortBy.equals("PackageType")
+            && !sortBy.equals("PackageDescription") && !sortBy.equals("id")) {
+            return ResponseEntity.badRequest()
+                .body("{\"error\":\"Invalid sortBy parameter\"}");
+        }
+        if (!sortDir.equals("asc") && !sortDir.equals("desc")) {
+            return ResponseEntity.badRequest()
+                .body("{\"error\":\"Invalid sortDir parameter\"}");
+        }
+
+        Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<SpecificAdapterEntry> ar = specificAdapterRepository.findByPackageDescriptionContains(query, pageable);
     	
-        @SuppressWarnings("unchecked")
-		Page<SpecificAdapterEntry> ar = (Page<SpecificAdapterEntry>) specificAdapterRepository.findByPackageDescriptionContains(query, pageable);
+  
+//		if (page < 0) {
+//			page = 0;
+//		}
+//		if (size < 1) {
+//			size = 20;
+//		}
+//		if (!sortBy.equals("IsDeclaredComplete") && !sortBy.equals("PackageType")
+//				&& !sortBy.equals("PackageDescription") && !sortBy.equals("id")) {
+//			sortBy = "id";
+//		}
+//		if (!sortDir.equals("asc") && !sortDir.equals("desc")) {
+//			sortDir = "asc";
+//		}
+//    	
+//    	Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? 
+//                Sort.Direction.DESC : Sort.Direction.ASC;
+//    	//System.out.println("********Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir + " query: " + query);
+        
+//    	
+//    	Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+//    	
+//        @SuppressWarnings("unchecked")
+//		Page<SpecificAdapterEntry> ar = (Page<SpecificAdapterEntry>) specificAdapterRepository.findByPackageDescriptionContains(query, pageable);
         try {
         	if (ar != null ) totalEntries = ar.getTotalElements();
 		} catch (Exception e) {
@@ -100,7 +149,7 @@ public class SpecificAdapterController {
         String csvStr = new String(init);
         String ret = "";
         //System.out.println("Paging is : start" + page + " size: " + size + " sortBy: " + sortBy + "sortDir: " + sortDir+ " query: " + query);
-        int count = 0;
+        // int count = 0;
         if (ar != null) {
             Iterator<SpecificAdapterEntry> iter = ar.iterator();
             while (iter.hasNext()) {
@@ -167,61 +216,115 @@ public class SpecificAdapterController {
             //System.out.println("InfoPackage is: " + ret);
         }
 
-        return ret; //.replace("\"", "\\\"");
+        return ResponseEntity.ok(ret); //ret; //.replace("\"", "\\\"");
     }
 
     /**
      * Get a specific component of an AIP given an identifier
-     * baseuri/GetPDI?aipid=xxx where XXX is archive's identifier for the AIP
+     * baseuri/information-packages/{ipid}/{component} where {ipid} is the archive's identifier for the AIP and {component} is either PDI, IO, DO or RI
      */
     @ResponseBody
+    @ApiResponses(value = { 
+			  @ApiResponse(responseCode = "200", description = "Found the list of Information Packages", 
+			    content = { @Content(mediaType = "application/json") }),
+		      @ApiResponse(responseCode = "400", description = "Invalid parameters supplied"),
+		      @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+		      @ApiResponse(responseCode = "403", description = "Forbidden request"),
+		      @ApiResponse(responseCode = "404", description = "Specified Information Package or component not found"),
+		      @ApiResponse(responseCode = "405", description = "Method Not Allowed")
+			  })
     @GetMapping(value = "/information-packages/{ipid}/{component}", produces = "application/json")
-    public String getComponentByIDByRequestParam(@PathVariable(value = "ipid") String idStr, @PathVariable(value = "component") String compStr) {
+    public ResponseEntity<String> getComponentByIDByRequestParam(@PathVariable(value = "ipid") String idStr, @PathVariable(value = "component") String compStr) {
         System.out.println("controller specificAdapterRepository is:" + specificAdapterRepository);
         System.out.println("XXXX Entry idStr requested is: " + idStr + ": component is: " + compStr);
         List<SpecificAdapterEntry> ar = specificAdapterRepository.findByIdStr(idStr);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = null;
         String ipReturn = "";
-        if (ar != null) {
-            String ipStr = ar.get(0).getJsonString();
-            System.out.println(" JsonString is:" + ipStr);
-            try {
-                node = mapper.readTree(ipStr);
-            } catch (JsonMappingException e) {
-                e.printStackTrace();
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            System.out.println(" Node is:" + node);
-
-            JsonNode comp = null;
-            System.out.println("Getting: " + compStr);
-            switch (compStr) {
-                case "PDI":
-                    comp = node.at("/InformationPackage/PDI");
-                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
-                    break;
-                case "IO":
-                    comp = node.at("/InformationPackage/InformationObject");
-                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
-                    break;
-                case "DO":
-                    comp = node.at("/InformationPackage/InformationObject/DataObject");
-                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": {\"DataObject\":" + comp.toString() + ",\"RepresentationInformation\":\"None, because only DataObject was requested\"}}}";
-                    break;
-                case "RI":
-                    comp = node.at("/InformationPackage/InformationObject/RepresentationInformation");
-                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
-                    break;
-            }
-
-            String ipUnEscaped = ipReturn; //  .replace("\\\"", "\"");
-            System.out.println(compStr + " as node: " + ipReturn);
-            return ipUnEscaped;
-        } else {
-            System.out.println("Entry request for " + idStr + " is NULL");
+        
+        if (ar == null || ar.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("{\"error\":\"Information Package not found\"}");
         }
-        return null;
+
+        //ObjectMapper mapper = new ObjectMapper();
+        //JsonNode node;
+        try {
+            node = mapper.readTree(ar.get(0).getJsonString());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("{\"error\":\"Failed to parse JSON\"}");
+        }
+
+        JsonNode comp = null;
+        //String ipReturn = "";
+        switch (compStr) {
+        	case "PDI":
+                comp = node.at("/InformationPackage/PDI");
+                ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
+                break;
+            case "IO":
+                comp = node.at("/InformationPackage/InformationObject");
+                ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
+                break;
+            case "DO":
+                comp = node.at("/InformationPackage/InformationObject/DataObject");
+                ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": {\"DataObject\":" + comp.toString() + ",\"RepresentationInformation\":\"None, because only DataObject was requested\"}}}";
+                break;
+            case "RI":
+                comp = node.at("/InformationPackage/InformationObject/RepresentationInformation");
+                ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
+                break;
+            default:
+                return ResponseEntity.badRequest()
+                    .body("{\"error\":\"Invalid component parameter\"}");
+        }
+        if (comp == null || comp.isMissingNode()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("{\"error\":\"Component not found\"}");
+        }
+        
+        return ResponseEntity.ok(ipReturn);   
+        
+//        if (ar != null) {
+//            String ipStr = ar.get(0).getJsonString();
+//            System.out.println(" JsonString is:" + ipStr);
+//            try {
+//                node = mapper.readTree(ipStr);
+//            } catch (JsonMappingException e) {
+//                e.printStackTrace();
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//            System.out.println(" Node is:" + node);
+//
+//            JsonNode comp = null;
+//            System.out.println("Getting: " + compStr);
+//            switch (compStr) {
+//                case "PDI":
+//                    comp = node.at("/InformationPackage/PDI");
+//                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
+//                    break;
+//                case "IO":
+//                    comp = node.at("/InformationPackage/InformationObject");
+//                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
+//                    break;
+//                case "DO":
+//                    comp = node.at("/InformationPackage/InformationObject/DataObject");
+//                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": {\"DataObject\":" + comp.toString() + ",\"RepresentationInformation\":\"None, because only DataObject was requested\"}}}";
+//                    break;
+//                case "RI":
+//                    comp = node.at("/InformationPackage/InformationObject/RepresentationInformation");
+//                    ipReturn = "{ \"InformationPackage\": {\"version\": \"1.0.0\", \"PackageType\": \"General\", \"IsDeclaredComplete\":false, \"PackageDescription\": \"This is the " + compStr + " of IP " + idStr + "\",  \"InformationObject\": " + comp.toString() + "}}";
+//                    break;
+//            }
+//
+//            String ipUnEscaped = ipReturn; //  .replace("\\\"", "\"");
+//            System.out.println(compStr + " as node: " + ipReturn);
+//            return ipUnEscaped;
+//        } else {
+//            System.out.println("Entry request for " + idStr + " is NULL");
+//        }
+//        return null;
     }
 }

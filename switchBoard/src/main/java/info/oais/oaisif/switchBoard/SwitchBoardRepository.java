@@ -11,6 +11,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 //import info.oais.oaisif.specificadapter.SpecificAdapterEntry;
 
 
+@SuppressWarnings("unused")
 public interface SwitchBoardRepository extends PagingAndSortingRepository<SwitchBoardEntry, Long>,JpaRepository<SwitchBoardEntry, Long> {
 
     List<SwitchBoardEntry> findByArchiveName(String name);
