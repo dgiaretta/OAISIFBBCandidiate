@@ -133,7 +133,7 @@ public class RroriController {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = null;
         String init = "{\"packages\":[";
-        String csvStr = new String(init);
+        String csvStr = "{\"packages\":["; //new String(init);
         String ret = "";
         
         int count = 0;

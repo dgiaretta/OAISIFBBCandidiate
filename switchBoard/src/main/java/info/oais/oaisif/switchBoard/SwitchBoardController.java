@@ -124,7 +124,7 @@ public class SwitchBoardController {
     	        .body("{\"error\":\"No sources found for the given query\"}");
     	}
 
-    	String init = "{\"packages\":[";
+    	String init = "{\\\"packages\\\":[";
     	StringBuilder csvStr = new StringBuilder(init);
     	for (SwitchBoardEntry sae : ar) {
     	    long idStr = sae.getId();
@@ -144,7 +144,7 @@ public class SwitchBoardController {
     	          .append(sUrl)
     	          .append("\\\"}");
     	}
-    	csvStr.append("],\"totalEntries\":" + totalEntries + ",\"page\":" + page + ",\"size\":" + size + ",\"sortBy\":\"" + sortBy + "\",\"sortDir\":\"" + sortDir + "\",\"query\":\"" + query+"\"}");
+    	csvStr.append("],\\\"totalEntries\\\":" + totalEntries + ",\\\"page\\\":" + page + ",\\\"size\\\":" + size + ",\\\"sortBy\\\":\\\"" + sortBy + "\\\",\\\"sortDir\\\":\\\"" + sortDir + "\\\",\\\"query\\\":\\\"" + query+"\\\"}");
 
     	String escapedStr = csvStr.toString();
     	String result = "{\"InformationPackage\":{\"version\":\"1.0.0\",\"PackageType\":\"General\",\"IsDeclaredComplete\":false," +
