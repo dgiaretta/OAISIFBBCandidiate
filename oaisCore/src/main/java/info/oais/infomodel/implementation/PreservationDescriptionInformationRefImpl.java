@@ -36,6 +36,11 @@ public class PreservationDescriptionInformationRefImpl extends InformationObject
 	}
 
 
+	public PreservationDescriptionInformationRefImpl() {
+		//TODO Auto-generated constructor stub
+	}
+
+
 	@JsonGetter("AccessRights")
 	public AccessRightsInformation getAccessRightsInformation() {
 		return m_ARI;

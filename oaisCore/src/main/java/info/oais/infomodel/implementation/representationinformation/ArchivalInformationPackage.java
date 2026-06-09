@@ -1,8 +1,11 @@
-package info.oais.infomodel.interfaces;
+package info.oais.infomodel.implementation.representationinformation;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import info.oais.infomodel.implementation.ArchivalInformationPackageRefImpl;
+import info.oais.infomodel.interfaces.InformationObject;
+import info.oais.infomodel.interfaces.InformationPackage;
+import info.oais.infomodel.interfaces.PreservationDescriptionInformation;
 
 /**
  * An Information Package, consisting of the Content Information and the

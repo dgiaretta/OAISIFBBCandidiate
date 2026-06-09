@@ -24,12 +24,12 @@ import info.oais.infomodel.interfaces.RepresentationInformation;
  * @author david
  *
  */
-@JsonPropertyOrder({"DataObject", "RepInfo", "Identifier" } )
+@JsonPropertyOrder({"DataObject", "RepInfo", "IdentifierObject" } )
 @JsonRootName(value = "InformationPackage" )
 public class InformationObjectRefImpl implements InformationObject {
 	DataObject m_DO = null;
 	RepresentationInformation m_RI = null;
-	Identifier m_ID = null;
+	IdentifierObject m_ID = null;
 	ObjVersion m_ObjVer = new ObjVersionRefImpl();
 
 	public InformationObjectRefImpl() {
@@ -39,7 +39,7 @@ public class InformationObjectRefImpl implements InformationObject {
 		/**
 		 * Generate an initial UUID
 		 */
-		m_ID = new IdentifierRefImpl((UUID.randomUUID()).toString(), "UUID");
+		m_ID = new IdentifierObjectRefImpl((UUID.randomUUID()).toString(), "UUID");
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class InformationObjectRefImpl implements InformationObject {
 		/**
 		 * Generate an initial UUID
 		 */
-		m_ID = new IdentifierRefImpl((UUID.randomUUID()).toString(), "UUID");
+		m_ID = new IdentifierObjectRefImpl((UUID.randomUUID()).toString(), "UUID");
 	}
 
 	/**
@@ -115,7 +115,7 @@ public class InformationObjectRefImpl implements InformationObject {
 			str = str + "null";
 		}
 
-		str = str + ", Identifier is: ";
+		str = str + ", IdentifierObject is: ";
 		if (m_ID != null) {
 			str = str + m_ID.toString();
 		} else {
@@ -136,19 +136,19 @@ public class InformationObjectRefImpl implements InformationObject {
 //	}
 
 	/**
-	 * Return the Identifier of the IO
+	 * Return the IdentifierObject of the IO
 	 *
 	 */
-	public Identifier getIdentifier() {
+	public IdentifierObject getIdentifier() {
 		return m_ID;
 	}
 
 	/**
-	 * Set the Identifier for the IO
+	 * Set the IdentifierObject for the IO
 	 *
-	 * @param id The Identifier to set
+	 * @param id The IdentifierObject to set
 	 */
-	public void setIdentifier(Identifier id) {
+	public void setIdentifier(IdentifierObject id) {
 		m_ID = id;
 	}
 

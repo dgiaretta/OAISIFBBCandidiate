@@ -2,7 +2,7 @@ package info.oais.infomodel.interfaces;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import info.oais.infomodel.implementation.IdentifierRefImpl;
+import info.oais.infomodel.implementation.IdentifierObjectRefImpl;
 
 /**
  * An identifier is a name that identifies (that is, labels the identity of)
@@ -13,27 +13,27 @@ import info.oais.infomodel.implementation.IdentifierRefImpl;
  * @version 1.0
  * @since 06-Sep-2021 15:59:46
  */
-@JsonDeserialize(as = IdentifierRefImpl.class)
-public interface Identifier {
+@JsonDeserialize(as = IdentifierObjectRefImpl.class)
+public interface IdentifierObject {
 
 	/**
 	 * Gets the String of the identifier e.g. http://pds.gov:8080
 	 *
 	 * @return 	String of the identifier
 	 */
-	public String	getIdName();
+	public String	getIdentifierString();
 	/**
 	 * Gets the String of the type of the identifier e.g. \"URI\"
 	 *
 	 * @return 	String of the identifier
 	 */
-	public String	getIdType();
+	public String	getIdentifierType();
 	/**
 	 * Sets the String of the identifier e.g. http://pds.gov:8080
 	 *
 	 * @param name 	String of the identifier
 	 */
-	public void	setIdName(String name);
+	public void	setIdentifierString(String name);
 	/**
 	 * Sets the String of the type of the identifier e.g. \"URI\"
 	 * sets the String which identifies the identifier type
@@ -41,7 +41,7 @@ public interface Identifier {
 	 *
 	 * @param type 	String of the identifier
 	 */
-	public void	setIdType(String type);
+	public void	setIdentifierType(String type);
 
 
 }

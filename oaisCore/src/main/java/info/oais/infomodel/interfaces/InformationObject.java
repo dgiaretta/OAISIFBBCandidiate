@@ -13,7 +13,7 @@ import info.oais.infomodel.implementation.InformationObjectRefImpl;
  * the string of bits as numbers representing temperature observations measured in
  * degrees Celsius (the Representation Information).  [OAIS]<br/>
  * The InformationObject may contain the DataObject and its RepresentationInformation,
- * or may contain an Identifier which points to these.
+ * or may contain an IdentifierObject which points to these.
  * @author David
  * @version 1.0
  * @since 06-Sep-2021 15:59:46
@@ -23,7 +23,7 @@ public interface InformationObject  {
 
 	/**
 	 * Get the DataObject of the InformationObject.
-	 * If the DataObject is an instance of an Identifier then it
+	 * If the DataObject is an instance of an IdentifierObject then it
 	 * points to the actual Data Object
 	 *
 	 * @return The DataObject of the InformationObject.
@@ -51,23 +51,23 @@ public interface InformationObject  {
 	public void setRepresentationInformation(RepresentationInformation repInfo);
 
 	/**
-	 * Get the Identifier of the Information Object
+	 * Get the IdentifierObject of the Information Object
 	 *
-	 * @return Identifier for the Info Object
+	 * @return IdentifierObject for the Info Object
 	 */
-	public Identifier getIdentifier();
+	public IdentifierObject getIdentifier();
 
 	/**
-	 * Set the Identifier for the Info Object
+	 * Set the IdentifierObject for the Info Object
 	 *
-	 * @param id Identifier for the Info Object
+	 * @param id IdentifierObject for the Info Object
 	 */
-	public void setIdentifier(Identifier id);
+	public void setIdentifier(IdentifierObject id);
 
 	/**
-	 * Get the Identifier of the Information Object
+	 * Get the IdentifierObject of the Information Object
 	 *
-	 * @return Identifier for the Info Object
+	 * @return IdentifierObject for the Info Object
 	 */
 	public ObjVersion getObjVersion();
 

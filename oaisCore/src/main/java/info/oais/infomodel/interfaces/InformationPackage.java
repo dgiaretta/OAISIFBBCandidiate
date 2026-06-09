@@ -31,9 +31,22 @@ public interface InformationPackage extends DataObject {
 	public void setInformationObject(InformationObject infoObj);
 
 	/**
-	 * Return the PackageDescription associated with the InformationPackage
+	 * Return the optional PreservationDescriptionInformation in the package.
 	 *
-	 * @return the PackageDescription associated with the InformationPackage
+	 * @return The PreservationDescriptionInformation which the InformationPackage contains.
+	 */
+	public PreservationDescriptionInformation getPDI();
+
+	/**
+	 * Set the InformationObject in the InformationPackage.
+	 *
+	 * @param infoObj The InformationObject for the InformationPackage.
+	 */
+	public void setPDI(PreservationDescriptionInformation pdiObj);
+	/**
+	 * Return the PreservationDescriptionInformation associated with the InformationPackage
+	 *
+	 * @return the PreservationDescriptionInformation associated with the InformationPackage
 	 */
 	public PackageDescription getPackageDescription();
 
@@ -59,24 +72,46 @@ public interface InformationPackage extends DataObject {
 	public void setPackagingInformation(PackagingInformation pi);
 
 	/**
-	 * Get the Identifier of the Information Package
+	 * Get the IdentifierObject of the Information Package
 	 *
-	 * @return Identifier for the Info Package
+	 * @return IdentifierObject for the Info Package
 	 */
+	
+	/**
+	 * Return the PackageType associated with the InformationPackage
+	 * "AIP","General","InfoObjectRequest","Query","QueryResponse","ObjectRequestResponse","ErrorResponse"
+	 *
+	 * @return the PackageType associated with the InformationPackage
+	 */
+	public String getPackageType();
+
+	/**
+	 * Set the PackageType to associate with the InformationPackage.
+	 *
+	 * @param pt The PackageType to associate with the InformationPackage
+	 */
+	public void setPackageType(String pt);
+
+	/**
+	 * Get the IdentifierObject of the Information Package
+	 *
+	 * @return IdentifierObject for the Info Package
+	 */
+	
 	@Override
-	public Identifier getIdentifier();
+	public IdentifierObject getIdentifierObject();
 
 	/**
-	 * Set the Identifier for the Info Package
+	 * Set the IdentifierObject for the Info Package
 	 *
-	 * @param id Identifier for the Info Package
+	 * @param id IdentifierObject for the Info Package
 	 */
-	public void setIdentifier(Identifier id);
+	public void setIdentifierObject(IdentifierObject id);
 
 	/**
-	 * Get the Identifier of the Object
+	 * Get the IdentifierObject of the Object
 	 *
-	 * @return Identifier for the Object
+	 * @return IdentifierObject for the Object
 	 */
 	@Override
 	public ObjVersion getObjVersion();
@@ -88,4 +123,18 @@ public interface InformationPackage extends DataObject {
 	 */
 	@Override
 	public void setObjVersion(ObjVersion v);
+	
+	/**
+	 * Return whether the package is declared to be a complete AIP.
+	 *
+	 * @return whether the package is declared to be a complete AIP.
+	 */
+	public boolean getIsDeclaredComplete();
+
+	/**
+	 * Set whether the InformationPackage is declared to be a complete AIP.
+	 *
+	 * @param idc Whether or not the InformationPackage is declared to be a complete AIP.
+	 */
+	public void setIsDeclaredComplete(boolean idc);
 }

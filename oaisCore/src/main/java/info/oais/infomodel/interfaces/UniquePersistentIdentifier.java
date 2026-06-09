@@ -2,7 +2,7 @@ package info.oais.infomodel.interfaces;
 
 
 /**
- * A Persistent Identifier which is unique within a specific naming convention.
+ * A Persistent IdentifierObject which is unique within a specific naming convention.
  * [OAIS]
  * @author David
  * @version 1.0

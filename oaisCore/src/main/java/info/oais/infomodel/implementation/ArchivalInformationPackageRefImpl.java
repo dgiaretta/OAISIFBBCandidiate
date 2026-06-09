@@ -10,12 +10,9 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import info.oais.infomodel.deserialise.ArchivalInformationPackageDeserialize;
+
+import info.oais.infomodel.implementation.representationinformation.ArchivalInformationPackage;
 import info.oais.infomodel.interfaces.*;
-import info.oais.infomodel.interfaces.ArchivalInformationPackage;
-import info.oais.infomodel.interfaces.InformationObject;
-import info.oais.infomodel.interfaces.PackageDescription;
-import info.oais.infomodel.interfaces.PreservationDescriptionInformation;
 
 /**
  * Archival Information Package implementation
@@ -59,11 +56,11 @@ public class ArchivalInformationPackageRefImpl extends InformationPackageRefImpl
     	/**
     	 * Register the deserializer
     	 */
-    	SimpleModule deserialization = new SimpleModule();
-    	deserialization.addDeserializer(ArchivalInformationPackage.class, new ArchivalInformationPackageDeserialize());
+    	//SimpleModule deserialization = new SimpleModule();
+    	//deserialization.addDeserializer(ArchivalInformationPackage.class, new ArchivalInformationPackageDeserialize());
 
-    	ObjectMapper objectMapper = new ObjectMapper();
-    	objectMapper.registerModule(deserialization);
+    	//ObjectMapper objectMapper = new ObjectMapper();
+    	//objectMapper.registerModule(deserialization);
 
 	}
 
@@ -71,65 +68,43 @@ public class ArchivalInformationPackageRefImpl extends InformationPackageRefImpl
 	 * Create new AIP
 	 *
 	 * @param io InformationObject for the AIP
-	 * @param pdi	PDI for the AIP;
 	 * @param pd    Package Description
+	 * @param pt	Package type e.g. "General", "AIP", "Query", "Response" etc TODO - ENUM
+	 * @param id	IdentifierObject for the AIP
+	 * @param pdi	PDI for the AIP;
 	 * @param complete Is the package complete
-	 * @param id	Identifier for the AIP
 	 *
 	 */
-	public ArchivalInformationPackageRefImpl(InformationObject io, PreservationDescriptionInformationRefImpl pdi, PackageDescription pd, boolean complete, Identifier id) {
+	public ArchivalInformationPackageRefImpl(InformationObject io, PackageDescription pd, String pt, IdentifierObject id, PreservationDescriptionInformation pdi, boolean complete) {
 
-
-		super( io,  pd, "AIP", id);
-		m_PDI = pdi;
-		m_IsComplete = complete;
+		super( io,  pd, "AIP", id, pdi, complete);
 
 	}
 
-	/**
-	 * Get boolean showing whether IP has been declared complete
-	 *
-	 * @return boolean showing whether IP has been declared complete
-	 */
-	@JsonGetter("IsComplete")
+	@Override
 	public Boolean isDeclaredComplete() {
-		return m_IsComplete; //(Boolean) aip.get("IsComplete");
+		return m_IsComplete;
 	}
-	/**
-	 * Set boolean showing whether AIP has been declared complete
-	 *
-	 * @param complete  boolean showing whether AIP has been declared complete
-	 */
-	@JsonSetter("IsComplete")
+	@Override
 	public void setIsDeclaredComplete(Boolean complete) {
 		m_IsComplete = complete;
 	}
-	/**
-	 * Get PDI of AIP
-	 *
-	 * @return PDI of AIP
-	 */
-	@JsonGetter("PreservationDescriptionInformation")
+	@Override
 	public PreservationDescriptionInformation getPDI() {
 		return m_PDI;
 	}
-	/**
-	 * Set PDI of AIP
-	 *
-	 * @param pdi  PDI of AIP
-	 */
-	@JsonSetter("PreservationDescriptionInformation")
+	@Override
 	public void setPDI(PreservationDescriptionInformation pdi) {
 		m_PDI = pdi;
 	}
-
+	@Override
 	public InformationObject getContentInformation() {
-		return super.getInformationObject();
+		return m_IO;
 	}
-
+	@Override
 	public void setContentInformation(InformationObject ci) {
-		super.setInformationObject(ci);
+		m_IO = ci;
 	}
-
+	
 
 }

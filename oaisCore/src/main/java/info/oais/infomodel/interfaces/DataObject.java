@@ -1,5 +1,7 @@
 package info.oais.infomodel.interfaces;
 
+import java.math.BigInteger;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import info.oais.infomodel.implementation.DataObjectRefImpl;
@@ -21,7 +23,7 @@ public interface DataObject  {
 	 * Get the Object (if any) which makes up the DataObject.
 	 * The Object may be an instance of an
 	 * <ul>
-	 * <li>Identifier, in which case it is a pointer to the
+	 * <li>IdentifierObject, in which case it is a pointer to the
 	 * actual DataObject</li>
 	 * <li>String, in which case one may try to print it</li>
 	 * <li>InputStream, in which case this is a Digital Object</li>
@@ -40,23 +42,23 @@ public interface DataObject  {
 	public void setObject(Object obj);
 
 	/**
-	 * Get the Identifier of the Information Object
+	 * Get the IdentifierObject of the Information Object
 	 *
-	 * @return Identifier for the Info Object
+	 * @return IdentifierObject for the Info Object
 	 */
-	public Identifier getIdentifier();
+	public IdentifierObject getIdentifierObject();
 
 	/**
-	 * Set the Identifier for the Info Object
+	 * Set the IdentifierObject for the Info Object
 	 *
-	 * @param id Identifier for the Info Object
+	 * @param id IdentifierObject for the Info Object
 	 */
-	public void setIdentifier(Identifier id);
+	public void setIdentifierObject(IdentifierObject id);
 
 	/**
-	 * Get the Identifier of the Data Object
+	 * Get the IdentifierObject of the Data Object
 	 *
-	 * @return Identifier for the Data Object
+	 * @return IdentifierObject for the Data Object
 	 */
 	public ObjVersion getObjVersion();
 
@@ -66,6 +68,19 @@ public interface DataObject  {
 	 * @param v version for the Data Object
 	 */
 	public void setObjVersion(ObjVersion v);
-
+	
+	/**
+	 * Get the size of the Data Object
+	 *
+	 * @return size of the Data Object
+	 */
+	public BigInteger getSize();
+	
+	/**
+	 * Set the size of the Data Object
+	 *
+	 * @param size size of the Data Object
+	 */
+	public void setSize(BigInteger size);
 
 }

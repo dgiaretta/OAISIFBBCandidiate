@@ -3,29 +3,31 @@
  */
 package info.oais.infomodel.implementation;
 
+import java.math.BigInteger;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 import info.oais.infomodel.interfaces.DataObject;
-import info.oais.infomodel.interfaces.Identifier;
+import info.oais.infomodel.interfaces.IdentifierObject;
 import info.oais.infomodel.interfaces.ObjVersion;
 
 /**
  * Reference implementation of DataObject.
  *
- * The DataObject has an Identifier, so that it can be found.
+ * The DataObject has an IdentifierObject, so that it can be found.
  *
  * The DataObject content is an Object. This Object may be
- * hold the bytes or it may be an instance of an Identifier,
+ * hold the bytes or it may be an instance of an IdentifierObject,
  * in which can it may point to the location of the bytes,
  * or may point to a physical object.
  *
  * @author david
  *
  */
-@JsonPropertyOrder({"Object", "Identifier", "IdType" } )
+@JsonPropertyOrder({"EncodedObject", "IdentifierObject" } )
 public class DataObjectRefImpl implements DataObject {
 	/**
 	 * Internal value of Data Object
@@ -33,15 +35,18 @@ public class DataObjectRefImpl implements DataObject {
 	@JsonIgnore
 	Object m_DATA = null;
 	/**
-	 * Internal value of the Identifier
+	 * Internal value of the IdentifierObject
 	 */
 	@JsonIgnore
-	Identifier m_ID = null;
+	IdentifierObject m_ID = null;
 	/**
 	 * Internal value of Version
 	 */
 	@JsonIgnore
 	ObjVersion m_ObjVer = new ObjVersionRefImpl();
+	
+	@JsonIgnore
+	BigInteger m_SIZE = null;
 
 	/**
 	 * Create new DataObject
@@ -52,7 +57,7 @@ public class DataObjectRefImpl implements DataObject {
 		/**
 		 * Generate an initial UUID
 		 */
-		//m_ID = new IdentifierRefImpl((UUID.randomUUID()).toString(), "UUID");
+		//m_ID = new IdentifierObjectRefImpl((UUID.randomUUID()).toString(), "UUID");
 	}
 	/**
 	 * Create new DataObject
@@ -66,29 +71,26 @@ public class DataObjectRefImpl implements DataObject {
 		/**
 		 * Generate an initial UUID
 		 */
-		//m_ID = new IdentifierRefImpl((UUID.randomUUID()).toString(), "UUID");
+		//m_ID = new IdentifierObjectRefImpl((UUID.randomUUID()).toString(), "UUID");
 
 	}
 
-	public Object getObject() {
-		return m_DATA;
-	}
 
 	/**
 	 * The following methods are for JACKSON serialisation
-	 * If the Object is an instance of Identifier then we want the
-	 * JSON to show an Identifier rather than an Object
+	 * If the Object is an instance of IdentifierObject then we want the
+	 * JSON to show an IdentifierObject rather than an Object
 	 */
 	/**
-	 * The Data Object may in fact be an Identifier which points to the actual Data Object
-	 * @return the Data Object OR else return NULL if this is an Identifier
+	 * The Data Object may in fact be an IdentifierObject which points to the actual Data Object, or an EncodedObject
+	 * @return the EncodedObject OR else return an IdentifierObject
 	 */
 	@JsonGetter("Object")
-	public Object j_getObject() {
-		if (m_DATA instanceof Identifier) {
-			return null;
+	public Object getObject() {
+		if (m_DATA instanceof IdentifierObject) {
+			return (IdentifierObjectRefImpl)m_DATA;
 		} else {
-			return m_DATA;
+			return (EncodedObjectRefImpl)m_DATA;
 		}
 	}
 
@@ -103,27 +105,27 @@ public class DataObjectRefImpl implements DataObject {
 	}
 
 	/**
-	 * Get the Identifier of this DataObject.
+	 * Get the IdentifierObject of this DataObject.
 	 *
-	 * @return Identifier of this DataObject.
+	 * @return IdentifierObject of this DataObject.
 	 *
 	 * @author david
 	 *
 	 */
-	@JsonGetter("Identifier")
-	public Identifier getIdentifier() {
+	@JsonGetter("IdentifierObject")
+	public IdentifierObject getIdentifierObject() {
 		return m_ID;
 	}
 	/**
-	 * Set the Identifier of this DataObject.
+	 * Set the IdentifierObject of this DataObject.
 	 *
-	 * @param id Identifier of this DataObject.
+	 * @param id IdentifierObject of this DataObject.
 	 *
 	 * @author david
 	 *
 	 */
-	@JsonSetter("Identifier")
-	public void setIdentifier(Identifier id) {
+	@JsonSetter("IdentifierObject")
+	public void setIdentifierObject(IdentifierObject id) {
 		m_ID = id;
 	}
 	@Override
@@ -137,7 +139,7 @@ public class DataObjectRefImpl implements DataObject {
 	 *
 	 * @return version
 	 */
-	@JsonGetter("Version")
+	@JsonGetter("ObjVersion")
 	public ObjVersion getObjVersion() {
 
 		return m_ObjVer;
@@ -148,8 +150,26 @@ public class DataObjectRefImpl implements DataObject {
 	 *
 	 * @param ver The version to set
 	 */
-	@JsonSetter("Version")
+	@JsonSetter("ObjVersion")
 	public void setObjVersion(ObjVersion ver) {
 		m_ObjVer = ver;
+	}
+	@Override
+	/**
+	 * Get the size of the Data Object
+	 *
+	 * @return size of the Data Object
+	 */
+	public BigInteger getSize() {
+		return m_SIZE;
+	}
+	@Override
+	/**
+	 * Set the size of the Data Object
+	 *
+	 * @param size size of the Data Object
+	 */
+	public void setSize(BigInteger size) {
+		m_SIZE = size;
 	}
 }

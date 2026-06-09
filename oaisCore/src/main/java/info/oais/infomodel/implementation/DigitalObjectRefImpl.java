@@ -17,7 +17,7 @@ import info.oais.infomodel.interfaces.DigitalObject;
  * @author david
  *
  */
-@JsonPropertyOrder({"DigitalObject", "Identifier", "Size"  })
+@JsonPropertyOrder({"DigitalObject", "IdentifierObject", "Size"  })
 public class DigitalObjectRefImpl extends DataObjectRefImpl implements DigitalObject {
 
 	/**
