@@ -63,7 +63,7 @@ public class PackageValidator {
      *  The VALID_ENCODING_TYPES array
      */
     private static final String[] VALID_ENCODING_TYPES = {
-        "ASCII7", "UTF8", "UTF16", "BASE64", "BASE32", "HEX", "OTHER"
+        "ASCII", "UTF-8", "UTF-16","UTF-16LE","UTF-16BE","UTF-16BOM", "BASE64", "BASE32", "BINHEX", "OTHER"
     };
 
     /**
